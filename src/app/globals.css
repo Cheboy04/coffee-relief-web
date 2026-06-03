@@ -244,6 +244,13 @@
   :root {
     --font-caslon: '';
     --font-hanken: '';
+    --navbar-height: 60px;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --navbar-height: 72px;
+    }
   }
 
   html {
