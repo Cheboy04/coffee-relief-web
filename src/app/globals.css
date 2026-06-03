@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+/* ─── Plugins ──────────────────────────────────────────────────────────────── */
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms" {
+  strategy: class;
+}
+@plugin "@tailwindcss/container-queries";
+
+/* ─── Source paths ─────────────────────────────────────────────────────────── */
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+
+/* ─── Design tokens ────────────────────────────────────────────────────────── */
+@theme {
+  /* Breakpoints */
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+
+  /* ── Surfaces (Kraft / Cream palette) ─────────────────────────────────── */
+  --color-surface: #fcf9f8;
+  --color-surface-dim: #dcd9d9;
+  --color-surface-bright: #fcf9f8;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f6f3f2;
+  --color-surface-base: #f0eded;
+  --color-surface-high: #eae7e7;
+  --color-surface-highest: #e5e2e1;
+  --color-surface-variant: #e5e2e1;
+  --color-surface-tint: #705a4c;
+
+  /* ── On-surface (text) ─────────────────────────────────────────────────── */
+  --color-on-surface: #1c1b1b;
+  --color-on-surface-variant: #4f453f;
+  --color-inverse-surface: #313030;
+  --color-inverse-on-surface: #f3f0ef;
+
+  /* ── Outline / borders ─────────────────────────────────────────────────── */
+  --color-outline: #81756e;
+  --color-outline-variant: #d2c4bc;
+
+  /* ── Primary — Espresso (deep rich brown) ──────────────────────────────── */
+  --color-primary: #26170c;
+  --color-primary-container: #3d2b1f;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ac9181;
+  --color-inverse-primary: #dec1af;
+  --color-primary-fixed: #fbddca;
+  --color-primary-fixed-dim: #dec1af;
+  --color-on-primary-fixed: #28180d;
+  --color-on-primary-fixed-variant: #574335;
+
+  /* ── Secondary — Roasted Bean (golden-brown) ───────────────────────────── */
+  --color-secondary: #755a34;
+  --color-secondary-container: #fdd7a7;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #785c36;
+  --color-secondary-fixed: #ffddb3;
+  --color-secondary-fixed-dim: #e5c192;
+  --color-on-secondary-fixed: #291800;
+  --color-on-secondary-fixed-variant: #5b421f;
+
+  /* ── Tertiary — Ink Black ──────────────────────────────────────────────── */
+  --color-tertiary: #1a1a18;
+  --color-tertiary-container: #2f2f2c;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #989692;
+  --color-tertiary-fixed: #e5e2dd;
+  --color-tertiary-fixed-dim: #c9c6c2;
+  --color-on-tertiary-fixed: #1c1c19;
+  --color-on-tertiary-fixed-variant: #474743;
+
+  /* ── Semantic ──────────────────────────────────────────────────────────── */
+  --color-background: #fcf9f8;
+  --color-on-background: #1c1b1b;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* ── Convenience aliases ───────────────────────────────────────────────── */
+  --color-espresso: #26170c;
+  --color-cream: #fcf9f8;
+  --color-kraft: #f6f3f2;
+  --color-sand: #fdd7a7;
+  --color-roast: #755a34;
+  --color-ink: #1c1b1b;
+
+  /* ── Font families ─────────────────────────────────────────────────────── */
+  --font-display: var(--font-caslon), Georgia, serif;
+  --font-sans: var(--font-hanken), system-ui, sans-serif;
+
+  /* ── Spacing ───────────────────────────────────────────────────────────── */
+  --spacing-unit: 8px;
+  --spacing-gutter: 24px;
+  --spacing-margin-d: 64px;
+  --spacing-margin-m: 20px;
+  --spacing-section: 120px;
+  --spacing-container: 1280px;
+
+  /* ── Border radius ─────────────────────────────────────────────────────── */
+  --radius-sm: 0.125rem;
+  --radius: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows (tinted with espresso) ───────────────────────────────────── */
+  --shadow-tonal-sm: 0 1px 3px rgba(38, 23, 12, 0.06);
+  --shadow-tonal-md: 0 4px 16px rgba(38, 23, 12, 0.08);
+  --shadow-tonal-lg: 0 8px 32px rgba(38, 23, 12, 0.10);
+  --shadow-float: 0 12px 48px rgba(38, 23, 12, 0.14);
+  --shadow-inset: inset 0 1px 3px rgba(38, 23, 12, 0.08);
+
+  /* ── Z-index scale ─────────────────────────────────────────────────────── */
+  --z-index-behind: -1;
+  --z-index-base: 0;
+  --z-index-raised: 10;
+  --z-index-dropdown: 20;
+  --z-index-sticky: 30;
+  --z-index-overlay: 40;
+  --z-index-modal: 50;
+  --z-index-toast: 60;
+  --z-index-video: 5;
+
+  /* ── Max widths ────────────────────────────────────────────────────────── */
+  --max-width-content: 1280px;
+  --max-width-prose: 680px;
+  --max-width-narrow: 480px;
+
+  /* ── Aspect ratios ─────────────────────────────────────────────────────── */
+  --aspect-ratio-hero: 16 / 9;
+  --aspect-ratio-product: 3 / 4;
+  --aspect-ratio-story: 4 / 5;
+  --aspect-ratio-wide: 21 / 9;
+
+  /* ── Transition durations ──────────────────────────────────────────────── */
+  --transition-duration-fast: 100ms;
+  --transition-duration-DEFAULT: 200ms;
+  --transition-duration-slow: 400ms;
+  --transition-duration-x-slow: 600ms;
+
+  /* ── Easing functions ──────────────────────────────────────────────────── */
+  --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+
+  /* ── Keyframes ─────────────────────────────────────────────────────────── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes trust-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── Animations ────────────────────────────────────────────────────────── */
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+  --animate-fade-in: fade-in 0.4s ease both;
+  --animate-slide-in-right: slide-in-right 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+  --animate-trust-scroll: trust-scroll 30s linear infinite;
+}
+
+/* ─── Typography utilities ─────────────────────────────────────────────────── */
+/* Compound utilities: font-size + line-height + letter-spacing + font-weight  */
+@utility text-display-lg {
+  font-size: 64px;
+  line-height: 72px;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+@utility text-display-lg-mob {
+  font-size: 40px;
+  line-height: 48px;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+@utility text-headline-md {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 400;
+}
+@utility text-headline-sm {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+@utility text-body-lg {
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+@utility text-body-md {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility text-label-md {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+@utility text-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+/* ─── Z-index shorthand utilities ──────────────────────────────────────────── */
+@utility z-behind   { z-index: -1; }
+@utility z-base     { z-index: 0; }
+@utility z-raised   { z-index: 10; }
+@utility z-dropdown { z-index: 20; }
+@utility z-sticky   { z-index: 30; }
+@utility z-overlay  { z-index: 40; }
+@utility z-modal    { z-index: 50; }
+@utility z-toast    { z-index: 60; }
+@utility z-video    { z-index: 5; }
+
+/* ─── Grain background utilities ────────────────────────────────────────────── */
+@utility bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+@utility bg-grain-subtle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+}
+
+/* ─── Base layer ────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --font-caslon: '';
+    --font-hanken: '';
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus visible — never outline-none without replacement */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion — disable all transitions */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
