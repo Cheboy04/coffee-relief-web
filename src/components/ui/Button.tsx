@@ -11,11 +11,10 @@ type Shared = {
   children: ReactNode
 }
 
-type AsAnchor = Shared & {
-  href: string
-  target?: AnchorHTMLAttributes<HTMLAnchorElement>['target']
-  rel?: string
-}
+type AsAnchor = Shared &
+  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof Shared> & {
+    href: string
+  }
 
 type AsButton = Shared &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof Shared> & {
@@ -78,13 +77,16 @@ export default function Button(props: ButtonProps) {
   )
 
   if ('href' in props && props.href != null) {
+    // Extract shared props (consumed above) so they don't bleed into <a> attributes
+    const {
+      variant: _v, size: _s, loading: _l, className: _c, children: _ch,
+      ...anchorRest
+    } = props as AsAnchor
     return (
       <a
-        href={props.href}
-        target={props.target}
-        rel={props.rel}
         className={classes}
         aria-disabled={loading || undefined}
+        {...anchorRest}
       >
         {content}
       </a>

@@ -220,6 +220,14 @@
   font-weight: 400;
 }
 
+/* ─── Navbar text color — overrideable by HeroScroll in Phase 3 ────────────── */
+@utility text-navbar-fg {
+  color: var(--navbar-fg-color);
+}
+@utility h-navbar {
+  height: var(--navbar-height);
+}
+
 /* ─── Z-index shorthand utilities ──────────────────────────────────────────── */
 @utility z-behind   { z-index: -1; }
 @utility z-base     { z-index: 0; }
@@ -245,6 +253,7 @@
     --font-caslon: '';
     --font-hanken: '';
     --navbar-height: 60px;
+    --navbar-fg-color: var(--color-on-surface);
   }
 
   @media (min-width: 768px) {
