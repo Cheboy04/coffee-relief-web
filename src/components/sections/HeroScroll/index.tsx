@@ -1,0 +1,147 @@
+'use client'
+
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { cn } from '@/lib/utils/cn'
+import HeroCanvas, { type HeroCanvasHandle } from './HeroCanvas'
+import HeroVideo from './HeroVideo'
+import HeroOverlay from './HeroOverlay'
+import HeroTransition from './HeroTransition'
+import { useHeroMode } from './useHeroMode'
+import { useHeroScrub } from './useHeroScrub'
+import { useHeroTransition } from './useHeroTransition'
+import { OVERLAY_MESSAGES } from './messages'
+import type { HeroScrollProps } from './types'
+
+/**
+ * HeroScroll — corazón narrativo del home.
+ *
+ * Modos de render:
+ *  - scrub  (desktop + motion): canvas frame-sequence scrubbed por scroll (GSAP)
+ *  - loop   (mobile + motion):  video autoplay muted loop
+ *  - static (reduced-motion / saveData / SSR): solo poster
+ *
+ * El color del Navbar se coordina via --navbar-fg-color sin tocar el componente Navbar.
+ */
+export default function HeroScroll({
+  videoSrc = '/video/hero.mp4',
+  posterSrc = '/video/hero-poster.png',
+  frameDir = '/frames',
+  frameCount = 161,
+  shopAnchorId = 'shop',
+  className,
+}: HeroScrollProps) {
+  const mode = useHeroMode()
+
+  const sectionRef = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HeroCanvasHandle | null>(null)
+  const overlayRefs = useRef<Array<HTMLDivElement | null>>([])
+  const bagRef = useRef<HTMLDivElement>(null)
+  const targetRef = useRef<HTMLDivElement>(null)
+
+  const [progress, setProgress] = useState(0)
+  const [posterHidden, setPosterHidden] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
+
+  const handleFrame = useCallback((index: number) => {
+    canvasRef.current?.drawFrame(index)
+  }, [])
+
+  // Loop/static: gestionar reproducción del video.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v || mode === 'scrub' || videoFailed) return
+    if (mode === 'loop') {
+      v.loop = true
+      v.preload = 'metadata'
+      void v.play().catch(() => {})
+    } else {
+      v.pause()
+    }
+  }, [mode, videoFailed])
+
+  // Loop/static: revelar video ocultando el poster cuando hay primer frame.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v || mode === 'scrub' || mode === 'static' || videoFailed) {
+      setPosterHidden(false)
+      return
+    }
+    const reveal = () => setPosterHidden(true)
+    if (v.readyState >= 2) reveal()
+    else v.addEventListener('loadeddata', reveal, { once: true })
+    return () => v.removeEventListener('loadeddata', reveal)
+  }, [mode, videoFailed])
+
+  // Color del Navbar: blanco mientras el hero está en viewport (todos los modos).
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const root = document.documentElement
+    const reset = () => root.style.setProperty('--navbar-fg-color', 'var(--color-on-surface)')
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        root.style.setProperty('--navbar-fg-color', entry.isIntersecting ? '#ffffff' : 'var(--color-on-surface)')
+      },
+      { threshold: 0 },
+    )
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      reset()
+    }
+  }, [])
+
+  useHeroScrub({
+    sectionRef,
+    videoRef,
+    overlayRefs,
+    bagRef,
+    targetRef,
+    messages: OVERLAY_MESSAGES,
+    enabled: mode === 'scrub',
+    onProgress: setProgress,
+    onFrame: handleFrame,
+    frameCount,
+  })
+
+  const transition = useHeroTransition({ progress, enabled: mode === 'scrub' })
+
+  return (
+    <section
+      ref={sectionRef}
+      className={cn('hero-track relative w-full', className)}
+      aria-label="Coffee Relief — historia de origen"
+    >
+      <div className="sticky top-0 h-screen w-full">
+        <div className="relative h-full w-full overflow-hidden">
+          {mode === 'scrub' ? (
+            <HeroCanvas
+              ref={canvasRef}
+              frameCount={frameCount}
+              frameDir={frameDir}
+              posterSrc={posterSrc}
+            />
+          ) : (
+            <HeroVideo
+              videoRef={videoRef}
+              videoSrc={videoSrc}
+              posterSrc={posterSrc}
+              posterHidden={posterHidden}
+              onError={() => setVideoFailed(true)}
+            />
+          )}
+          <HeroOverlay
+            overlayRefs={overlayRefs}
+            messages={OVERLAY_MESSAGES}
+            mode={mode}
+            shopAnchorId={shopAnchorId}
+          />
+          {mode === 'scrub' && (
+            <HeroTransition bagRef={bagRef} targetRef={targetRef} settled={transition.settled} />
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

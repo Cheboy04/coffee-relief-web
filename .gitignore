@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large binary assets — manage via CDN in production
+/public/frames/
+/public/video/hero-scrub.mp4

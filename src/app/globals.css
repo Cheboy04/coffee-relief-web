@@ -239,6 +239,11 @@
 @utility z-toast    { z-index: 60; }
 @utility z-video    { z-index: 5; }
 
+/* ─── Aspect ratio utilities ────────────────────────────────────────────────── */
+@utility aspect-product {
+  aspect-ratio: 3 / 4;
+}
+
 /* ─── Grain background utilities ────────────────────────────────────────────── */
 @utility bg-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
@@ -285,6 +290,20 @@
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ─── HeroScroll — altura de la pista de scroll ─────────────────────────────── */
+/* 300vh solo en desktop con motion permitido (modo scrub). En mobile,          */
+/* reduced-motion o saveData colapsa a 100vh (sin scroll vacío).                 */
+@layer components {
+  .hero-track {
+    height: 100vh;
+  }
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .hero-track {
+      height: 300vh;
     }
   }
 }
