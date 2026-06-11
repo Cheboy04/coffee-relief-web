@@ -15,10 +15,12 @@ export default function CanvasScrub({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [loadEnabled, setLoadEnabled] = useState(false)
 
-  // Trigger frame loading when beat is 600px from viewport
+  // Trigger frame loading when beat is 600px from viewport.
+  // Skip entirely in data-saver mode — placeholder color is shown instead.
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+    if ((navigator as { connection?: { saveData?: boolean } }).connection?.saveData) return
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
@@ -41,12 +43,22 @@ export default function CanvasScrub({
   })
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      // alt is passed for future use (e.g. open-graph image generation)
-      data-alt={alt}
-      className="w-full h-full block"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        data-alt={alt}
+        className="w-full h-full block"
+        style={{ backgroundColor: placeholderColor }}
+      />
+      {/* No-JS fallback: canvas is empty without JavaScript */}
+      <noscript>
+        <div
+          style={{ backgroundColor: placeholderColor, width: '100%', height: '100%' }}
+          role="img"
+          aria-label={alt}
+        />
+      </noscript>
+    </>
   )
 }

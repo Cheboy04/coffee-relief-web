@@ -78,7 +78,13 @@ export function useCanvasScrub(
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
-    const fi = Math.min(Math.floor(progressRef.current * frameCount), frameCount - 1)
+    const reducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // In reduced-motion mode show the middle frame, not frame 0 (progressRef never advances)
+    const fi = reducedMotion
+      ? Math.floor(frameCount / 2)
+      : Math.min(Math.floor(progressRef.current * frameCount), frameCount - 1)
     drawBestFrame(ctx, framesRef.current, fi, canvas.width, canvas.height, placeholderColor)
   }, [frames, frameCount, placeholderColor, canvasRef])
 
