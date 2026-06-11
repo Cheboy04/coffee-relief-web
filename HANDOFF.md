@@ -393,6 +393,12 @@ useEffect(() => {
 - Cada beat: `<h3>` para el headline — jerarquía h1 (hero) → h2 (section) → h3 (beats)
 - `prefers-reduced-motion`: ScrollTrigger no se registra, canvas muestra frame del medio (`Math.floor(frameCount / 2)`)
 
+**Fallbacks implementados:**
+- `prefers-reduced-motion` → ScrollTrigger no se registra + canvas muestra `Math.floor(frameCount / 2)` cuando los frames cargan
+- `saveData` mode → frames no se cargan, canvas muestra `placeholderColor` permanentemente
+- Sin JavaScript → `<canvas style={{ backgroundColor: placeholderColor }}>` visible + `<noscript>` con `<div>` de mismo color y `role="img"`
+- Frame fallido al cargar → `drawBestFrame` retrocede al último frame cargado disponible, o al placeholder
+
 **Cuando lleguen los frames reales:**
 ```
 1. Extraer frames en WebP 1920×1080 quality 80
@@ -460,6 +466,9 @@ export default function HomePage() {
 | OriginStory refactorizada de parallax a canvas scrub | Decisión de diseño para coherencia visual con el hero | Fase 5 reescrita completa: CanvasScrub.tsx + useFrameLoader.ts + useCanvasScrub.ts |
 | ScrollTrigger se re-registraba en loop | `frames` como dependencia de useEffect causaba re-registro en cada batch update | Patrón `framesRef` + deps vacías `[]` con eslint-disable justificado |
 | Canvas no mantenía resolución al redimensionar | `canvas.width/height` no se actualizaban con el tamaño CSS | `ResizeObserver` en useCanvasScrub sincroniza resolución interna con tamaño CSS |
+| `prefers-reduced-motion` mostraba frame 0 en lugar del frame medio | El efecto "redraw on frames" usaba `progressRef.current = 0` (nunca avanzado en modo reducido) | Verificar `matchMedia` en el efecto de redibujado y usar `Math.floor(frameCount / 2)` |
+| Frames se cargaban en modo data-saver | `CanvasScrub` no verificaba `navigator.connection?.saveData`, a diferencia del HeroScroll | Guard `saveData` antes del `IntersectionObserver` — beats quedan en color placeholder |
+| Canvas vacío sin JavaScript | `<canvas>` no tiene contenido visual sin JS — users sin JS veían nada | `style={{ backgroundColor: placeholderColor }}` en canvas + `<noscript>` con div de color + `role="img"` |
 
 ---
 
@@ -478,6 +487,7 @@ export default function HomePage() {
 11. **Canvas frame scrub en OriginStory** — misma técnica que el hero, no parallax estático. Razón: coherencia del lenguaje visual del sitio. Cada beat tiene 60 frames WebP en `/public/images/origin/beat-N-nombre/frame_000000.webp`.
 12. **`framesRef` pattern en useCanvasScrub** — ScrollTrigger registrado con deps `[]` vacías; `framesRef` y `progressRef` se actualizan via `useEffect` separado. Evita re-registro infinito del trigger al llegar batches de frames.
 13. **Frame naming: `frame_000000.webp`** — guion bajo, 6 dígitos, 0-indexado, WebP. Igual que hero. NO usar guion, 3 dígitos ni .jpg. Si los assets reales usan otro formato, actualizar `frameSrc()` en `useFrameLoader.ts`.
+14. **`saveData` guard en canvas scrub** — consistente con HeroScroll: si `navigator.connection?.saveData` está activo, no se cargan frames. Aplicar este mismo patrón en cualquier componente futuro que cargue assets pesados (videos, secuencias de frames).
 
 ---
 
