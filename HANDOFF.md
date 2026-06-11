@@ -32,7 +32,7 @@ El video hero controla esta narrativa con un scrub de scroll GSAP.
 | Repositorio GitHub | https://github.com/Cheboy04/coffee-relief-web |
 | Código fuente local | `C:\Projects\ClaudeCode\coffee-relief-web` |
 | Directorio de trabajo (assets, docs) | `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief` |
-| DESIGN.md (fuente de verdad visual) | `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief\DESIGN.md` |
+| DESIGN.md (fuente de verdad visual) | `docs/DESIGN.md` (en el repo) |
 | CLAUDE.md del proyecto | `C:\Projects\ClaudeCode\coffee-relief-web\CLAUDE.md` |
 
 **Comandos esenciales** (ejecutar desde `C:\Projects\ClaudeCode\coffee-relief-web`):
@@ -562,13 +562,13 @@ Fase 14     Deploy a Vercel
 ## 17. Cómo continuar en sesión fresca
 
 1. Leer este HANDOFF.md completo
-2. Leer `DESIGN.md` en `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief\DESIGN.md`
+2. Leer `docs/DESIGN.md` (fuente de verdad visual)
 3. Ejecutar `pnpm build` — debe pasar limpio
 4. Ejecutar `pnpm dev` para ver estado actual en browser
-5. El prompt de cada fase está en `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief\PROMPT_FASE{N}_*.md`
+5. Los prompts de cada fase están en `docs/prompts/PROMPT_FASE{N}_*.md`
 
 **Para arrancar Fase 6, decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el HANDOFF.md en `C:\Projects\ClaudeCode\coffee-relief-web\HANDOFF.md` y el DESIGN.md en `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief\DESIGN.md`. Fases 0–5 completadas. El prompt de la fase 6 está en `C:\Projects\ClaudeCode\Segunda prueba Coffee Relief\PROMPT_FASE6_*.md`. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y el `docs/DESIGN.md`. Fases 0–5 completadas. El prompt de la fase 6 estará en `docs/prompts/PROMPT_FASE6_*.md`. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
 ---
 
