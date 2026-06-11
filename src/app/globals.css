@@ -164,7 +164,7 @@
   }
   @keyframes trust-scroll {
     from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    to   { transform: translateX(calc(-100% / 3)); }
   }
 
   /* ── Animations ────────────────────────────────────────────────────────── */
@@ -243,6 +243,17 @@
 @utility aspect-product {
   aspect-ratio: 3 / 4;
 }
+
+/* ─── OriginStory — image container heights ────────────────────────────────── */
+@utility h-beat-image     { height: 560px; }
+@utility h-beat-image-mob { height: 320px; }
+
+/* Image scale for parallax bleed — uses CSS `scale` property (separate from    */
+/* `transform`) so GSAP translateY doesn't overwrite it.                         */
+@utility scale-parallax { scale: 1.2; }
+
+/* ─── Max-width shorthand ───────────────────────────────────────────────────── */
+@utility max-w-content { max-width: var(--max-width-content); }
 
 /* ─── Grain background utilities ────────────────────────────────────────────── */
 @utility bg-grain {
