@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-10 · Fases completadas: 0, 1, 2, 3, 4, 5
+> Última actualización: 2026-06-11 · Fases completadas: 0, 1, 2, 3, 4, 5
 
 ---
 
@@ -154,9 +154,11 @@ max-w-prose     ~680px  ← columnas de texto
 
 ### Utilities específicos de secciones
 ```
-h-beat-image      560px  ← altura container imagen OriginStory desktop
-h-beat-image-mob  320px  ← altura container imagen OriginStory mobile
-scale-parallax    scale: 1.2  ← CSS `scale` property (NO transform) para parallax
+h-beat-track-mob  150vh  ← scroll track por beat (mobile) — OriginStory
+h-beat-track      200vh  ← scroll track por beat (desktop) — OriginStory
+h-beat-canvas-mob 56vw   ← altura canvas en mobile — OriginStory
+w-canvas-col      55%    ← columna canvas (desktop) — OriginStory
+w-text-col        45%    ← columna texto (desktop) — OriginStory
 h-navbar          var(--navbar-height)  ← 60px mobile / 72px desktop
 z-video           5
 z-raised          10
@@ -289,59 +291,116 @@ data.ts        ← TRUST_ITEMS: TrustItem[]
 
 **Ruta:** `src/components/sections/OriginStory/`
 
+**Técnica:** Canvas frame scrub — el mismo patrón del HeroScroll. Cada beat tiene su propio
+`<canvas>` controlado por GSAP ScrollTrigger. El scroll del usuario selecciona el frame a dibujar.
+
 ```
-index.tsx         ← Server Component — compone los 4 beats
-OriginBeat.tsx    ← Client Component — layout + GSAP stagger entrance
-ParallaxImage.tsx ← Client Component — GSAP ScrollTrigger parallax
-data.ts           ← ORIGIN_BEATS: OriginBeat[]
-types.ts          ← OriginBeat, ParallaxImageProps
+index.tsx           ← Server Component — compone los 4 beats, id="origin"
+OriginBeat.tsx      ← Server Component — layout beat (canvas + texto), pasa scrollTrackId
+CanvasScrub.tsx     ← Client Component — canvas element + orquesta hooks
+useFrameLoader.ts   ← hook — carga frames por beat con IntersectionObserver + batch updates
+useCanvasScrub.ts   ← hook — GSAP ScrollTrigger + drawFrame + ResizeObserver
+types.ts            ← BeatConfig, CanvasScrubProps
+src/data/originStory.ts ← ORIGIN_BEATS: BeatConfig[] (fuera de sections/)
 ```
 
-**4 beats:**
-| id | eyebrow | headline | imageLeft |
+**Frontera Server/Client:**
+- `OriginStory` e `OriginBeat` son Server Components — sin hooks ni refs
+- `CanvasScrub` y ambos hooks son `'use client'` — únicos que tocan el DOM
+
+**4 beats — datos completos:**
+| id | eyebrow | headline | canvasLeft |
 |---|---|---|---|
 | `origen` | Valle del Chota | Volcánico por naturaleza | true |
 | `seleccion` | Cosecha manual | Solo el grano en su punto | false |
-| `tueste` | Quito, Ecuador | El tueste donde nace | true |
+| `tueste` | Quito, 2.850 m | El tueste donde nace | true |
 | `comercio` | Sin intermediarios | Del productor a tu taza | false |
 
-**Assets de imágenes:**
+**Assets de frames — convención de naming:**
 ```
-public/images/origin-volcanic.jpeg   ← Beat 1 (ya existe)
-public/images/origin-harvest.jpeg    ← Beat 2 (pendiente)
-public/images/origin-roasting.jpeg   ← Beat 3 (pendiente)
-public/images/origin-direct.jpeg     ← Beat 4 (pendiente)
+public/images/origin/
+  beat-1-origen/
+    frame_000000.webp   ← índice 0-based, 6 dígitos, guion bajo, .webp
+    frame_000001.webp
+    ...
+    frame_000059.webp   ← 60 frames por beat
+  beat-2-seleccion/
+    frame_000000.webp ... frame_000059.webp
+  beat-3-tueste/
+    frame_000000.webp ... frame_000059.webp
+  beat-4-comercio/
+    frame_000000.webp ... frame_000059.webp
 ```
-OJO: extensión es `.jpeg` (4 letras), no `.jpg` — data.ts ya usa `.jpeg`. Next.js hace match exacto.
-Dimensiones mínimas recomendadas: 1400×700px landscape.
+⚠️ **Naming es `frame_000000.webp`** (guion bajo, 6 dígitos, 0-indexado, WebP) —
+igual que los frames del hero en `/public/frames/`. NO usar guion, 3 dígitos ni .jpg.
+Resolución recomendada: 1920×1080px, calidad WebP 80.
 
-**Layout desktop:** grid 12 cols, imagen 7 cols / texto 5 cols, alternado por beat.
-**Layout mobile:** flex-col, imagen siempre arriba (primer elemento en DOM).
+**Layout por beat:**
+- Desktop: `h-beat-track` (200vh), canvas `w-canvas-col` (55%) sticky + texto `w-text-col` (45%) que scrollea
+- Mobile: canvas `h-beat-canvas-mob` (56vw) en flow normal, texto debajo — `h-beat-track-mob` (150vh)
+- Canvas alterna lado por beat via `canvasLeft: boolean`
 
-**Patrón parallax:**
+**Placeholder mientras cargan frames:** `fillRect` con `placeholderColor` de cada beat.
+Los colores mapean a tokens del design system:
+```
+Beat 1 — origen:    #3d2b1f (bg-primary-container)
+Beat 2 — seleccion: #fdd7a7 (bg-secondary-container)
+Beat 3 — tueste:    #755a34 (text-secondary)
+Beat 4 — comercio:  #2f2f2c (bg-tertiary-container)
+```
+
+**Lógica de scrub:**
 ```typescript
-// scale-parallax (CSS `scale: 1.2`) en el imageWrapper — NO usar transform: scale()
-// porque GSAP usa `transform` para translateY y se pisarían.
-// CSS `scale` property es independiente de `transform`. ✓
+// Fórmula frameIndex — Math.floor (no Math.round: evita llegar a frameCount)
+const fi = Math.min(Math.floor(self.progress * frameCount), frameCount - 1)
 
-gsap.fromTo(imageWrapperRef.current,
-  { y: -offset },   // offset = containerHeight * parallaxFactor (default: 0.1)
-  { y: offset, ease: 'none', scrollTrigger: { scrub: 0.5, start: 'top bottom', end: 'bottom top' } }
-)
+// object-fit: cover equivalente en canvas
+const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
+const x = (cw - img.naturalWidth * scale) / 2
+const y = (ch - img.naturalHeight * scale) / 2
+ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale)
+
+// Fallback: si el frame pedido no está cargado, usa el último cargado disponible
+// Si ninguno cargó → fillRect con placeholderColor
 ```
 
-**Entrance animation (stagger):**
+**Patrón GSAP — framesRef para evitar re-registro:**
 ```typescript
-// motion-safe:opacity-0 en eyebrow/headline/body → invisible en SSR si el usuario
-// no tiene reduced-motion. GSAP anima opacity 0→1 + y 24→0 con stagger 0.12s.
-// Con prefers-reduced-motion: no se aplica opacity-0 ni corre GSAP → texto siempre visible.
+// framesRef y progressRef se sincronizan via useEffect separado
+// El useEffect del ScrollTrigger tiene deps vacías [] — se registra UNA vez
+// Evita re-registro infinito que ocurriría si `frames` fuera dependencia directa
+const framesRef = useRef(frames)
+useEffect(() => { framesRef.current = frames }, [frames])
+
+useEffect(() => {
+  // ScrollTrigger lee siempre framesRef.current (siempre actualizado)
+  // ...
+}, []) // eslint-disable-line — intencional
+```
+
+**Preload strategy:**
+```typescript
+// IntersectionObserver con rootMargin: '600px 0px'
+// Activa la carga de frames cuando el beat está a 600px del viewport
+// Cada beat carga independientemente — beat 1 carga primero naturalmente
+// Batch state updates en checkpoints: frame 1, 25%, 50%, 75%, 100%
 ```
 
 **Accesibilidad:**
+- `<canvas aria-hidden="true">` — el texto del beat ya describe el contenido visualmente
 - `<section id="origin" aria-labelledby="origin-story-heading">`
-- `<h2 id="origin-story-heading" className="sr-only">` (invisible pero semántico)
-- Cada beat: `<h3>` para el headline
-- Hero es implícitamente h1 (la jerarquía es: h2 section → h3 beats)
+- `<h2 id="origin-story-heading" className="sr-only">Origen de nuestro café</h2>`
+- Cada beat: `<h3>` para el headline — jerarquía h1 (hero) → h2 (section) → h3 (beats)
+- `prefers-reduced-motion`: ScrollTrigger no se registra, canvas muestra frame del medio (`Math.floor(frameCount / 2)`)
+
+**Cuando lleguen los frames reales:**
+```
+1. Extraer frames en WebP 1920×1080 quality 80
+2. Nombrar frame_000000.webp, frame_000001.webp, ...
+3. Colocar en public/images/origin/beat-N-nombre/
+4. Actualizar frameCount en src/data/originStory.ts si difiere de 60
+5. pnpm build — el componente los toma sin cambios de código
+```
 
 ---
 
@@ -381,7 +440,7 @@ export default function HomePage() {
 | 2 | Navbar + Footer | ✅ | ✓ | ✓ | ✓ |
 | 3 | HeroScroll (canvas frame sequence) | ✅ | ✓ | ✓ | ✓ |
 | 4 | TrustBar (marquee infinito) | ✅ | ✓ | ✓ | ✓ |
-| 5 | OriginStory (parallax + stagger) | ✅ | ✓ | ✓ | ✓ |
+| 5 | OriginStory (canvas frame scrub × 4 beats) | ✅ | ✓ | ✓ | ✓ |
 | 6 | ExperienceCards | ⏳ | — | — | — |
 
 ---
@@ -398,6 +457,9 @@ export default function HomePage() {
 | Video scrub con lag excesivo | scrub: 1 | Cambiado a scrub: 0.3 |
 | TrustBar no era infinita | `flex w-max` computa ancho incorrecto dentro de overflow:hidden | `inline-flex` + 3 copias + `calc(-100% / 3)` |
 | Imágenes OriginStory 400 error | data.ts usaba `.jpg`, archivos son `.jpeg` | data.ts actualizado a `.jpeg` |
+| OriginStory refactorizada de parallax a canvas scrub | Decisión de diseño para coherencia visual con el hero | Fase 5 reescrita completa: CanvasScrub.tsx + useFrameLoader.ts + useCanvasScrub.ts |
+| ScrollTrigger se re-registraba en loop | `frames` como dependencia de useEffect causaba re-registro en cada batch update | Patrón `framesRef` + deps vacías `[]` con eslint-disable justificado |
+| Canvas no mantenía resolución al redimensionar | `canvas.width/height` no se actualizaban con el tamaño CSS | `ResizeObserver` en useCanvasScrub sincroniza resolución interna con tamaño CSS |
 
 ---
 
@@ -413,6 +475,9 @@ export default function HomePage() {
 8. **Sin valores arbitrarios `[]`** — agregar @utility a globals.css
 9. **GSAP dynamic import** — siempre `await import('gsap')` dentro de useEffect, nunca import estático de tope
 10. **CSS `scale` (no `transform: scale`)** en elementos que también anima GSAP con translateY
+11. **Canvas frame scrub en OriginStory** — misma técnica que el hero, no parallax estático. Razón: coherencia del lenguaje visual del sitio. Cada beat tiene 60 frames WebP en `/public/images/origin/beat-N-nombre/frame_000000.webp`.
+12. **`framesRef` pattern en useCanvasScrub** — ScrollTrigger registrado con deps `[]` vacías; `framesRef` y `progressRef` se actualizan via `useEffect` separado. Evita re-registro infinito del trigger al llegar batches de frames.
+13. **Frame naming: `frame_000000.webp`** — guion bajo, 6 dígitos, 0-indexado, WebP. Igual que hero. NO usar guion, 3 dígitos ni .jpg. Si los assets reales usan otro formato, actualizar `frameSrc()` en `useFrameLoader.ts`.
 
 ---
 
@@ -442,20 +507,32 @@ useEffect(() => {
 // cada grupo: gap-x-12 pr-12 (pr igual al gap para cierre seamless)
 ```
 
-### Parallax con GSAP
-```tsx
-// container: relative overflow-hidden h-beat-image
-// imageWrapper: absolute inset-0 scale-parallax (CSS scale, no transform)
-//              style={{ willChange: 'transform' }}
-// GSAP: fromTo(wrapper, {y: -offset}, {y: offset, ease:'none', scrollTrigger:{scrub:0.5}})
-// offset = container.offsetHeight * parallaxFactor (default 0.1)
-```
+### Canvas Frame Scrub (OriginStory — Fase 5)
+```typescript
+// useFrameLoader: carga frames en paralelo, batch updates en checkpoints
+// IntersectionObserver rootMargin: '600px 0px' → precarga cuando el beat se acerca
+// 60 frames/beat, WebP, naming: frame_000000.webp (0-indexed, 6 dígitos)
 
-### Entrance animation (stagger)
-```tsx
-// CSS inicial: motion-safe:opacity-0 (invisible en browser normal, visible en reduced-motion)
-// GSAP: fromTo([el1,el2,el3], {opacity:0,y:24}, {opacity:1,y:0,stagger:0.12,duration:0.6})
-// scrollTrigger: { start: 'top 80%' } — sin scrub, se ejecuta una sola vez
+// useCanvasScrub: ScrollTrigger con scrub:true + onUpdate manual
+ScrollTrigger.create({
+  trigger: scrollTrack,     // article con id="beat-{id}" y h-beat-track (200vh)
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: true,
+  onUpdate: (self) => {
+    const fi = Math.min(Math.floor(self.progress * frameCount), frameCount - 1)
+    drawBestFrame(ctx, framesRef.current, fi, cw, ch, placeholderColor)
+  },
+})
+
+// object-fit: cover equivalent
+const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
+ctx.drawImage(img, (cw - img.naturalWidth*scale)/2, (ch - img.naturalHeight*scale)/2,
+  img.naturalWidth*scale, img.naturalHeight*scale)
+
+// ResizeObserver: mantiene canvas.width/height en sync con tamaño CSS
+// framesRef: evita re-registro de ScrollTrigger al llegar batches de frames
+// prefers-reduced-motion: frame fijo en Math.floor(frameCount / 2)
 ```
 
 ---
@@ -468,7 +545,7 @@ Fase 1   ✅ Design tokens + SectionTitle + Button
 Fase 2   ✅ Navbar + Footer
 Fase 3   ✅ HeroScroll (canvas frame sequence + GSAP scroll narrative)
 Fase 4   ✅ TrustBar (CSS marquee infinito)
-Fase 5   ✅ OriginStory (parallax + stagger entrance)
+Fase 5   ✅ OriginStory (canvas frame scrub × 4 beats)
 Fase 6   ⏳ ExperienceCards
 Fase 7      ShopCoffee + ProductCard + CoffeeQuiz
 Fase 8      MenuVisual
@@ -495,5 +572,5 @@ Fase 14     Deploy a Vercel
 
 ---
 
-*Documento actualizado al finalizar la Fase 5 del proyecto Coffee Relief Web.*
+*Documento actualizado al finalizar la Fase 5 (canvas scrub) del proyecto Coffee Relief Web.*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*

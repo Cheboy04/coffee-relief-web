@@ -244,13 +244,12 @@
   aspect-ratio: 3 / 4;
 }
 
-/* ─── OriginStory — image container heights ────────────────────────────────── */
-@utility h-beat-image     { height: 560px; }
-@utility h-beat-image-mob { height: 320px; }
-
-/* Image scale for parallax bleed — uses CSS `scale` property (separate from    */
-/* `transform`) so GSAP translateY doesn't overwrite it.                         */
-@utility scale-parallax { scale: 1.2; }
+/* ─── OriginStory — canvas frame scrub layout tokens ───────────────────────── */
+@utility h-beat-track-mob  { height: 150vh; }   /* mobile scroll track per beat */
+@utility h-beat-track      { height: 200vh; }   /* desktop scroll track per beat */
+@utility h-beat-canvas-mob { height: 56vw;  }   /* mobile canvas height */
+@utility w-canvas-col      { width: 55%; }      /* desktop canvas column */
+@utility w-text-col        { width: 45%; }      /* desktop text column */
 
 /* ─── Max-width shorthand ───────────────────────────────────────────────────── */
 @utility max-w-content { max-width: var(--max-width-content); }

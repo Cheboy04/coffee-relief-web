@@ -1,19 +1,19 @@
-export type OriginBeat = {
+export interface BeatConfig {
   id: string
   eyebrow: string
   headline: string
   body: string
-  imageSrc: string
+  framesDir: string
+  frameCount: number
+  placeholderColor: string
   imageAlt: string
-  imageLeft: boolean
-  placeholderBg: string
+  canvasLeft: boolean
 }
 
-export type ParallaxImageProps = {
-  src: string
+export interface CanvasScrubProps {
+  framesDir: string
+  frameCount: number
+  placeholderColor: string
   alt: string
-  parallaxFactor?: number
-  priority?: boolean
-  sizes: string
-  placeholderBg?: string
+  scrollTrackId: string
 }

@@ -1,0 +1,48 @@
+import type { BeatConfig } from '@/components/sections/OriginStory/types'
+
+export const ORIGIN_BEATS: BeatConfig[] = [
+  {
+    id: 'origen',
+    eyebrow: 'Valle del Chota',
+    headline: 'Volcánico por naturaleza',
+    body: 'A 1.800 metros, los suelos de ceniza volcánica del norte ecuatoriano concentran azúcares y acidez en cada cereza. El café no crece aquí a pesar del terreno — crece gracias a él.',
+    framesDir: '/images/origin/beat-1-origen',
+    frameCount: 60,
+    placeholderColor: '#3d2b1f',
+    imageAlt: 'Laderas volcánicas del norte de Ecuador al amanecer, finca cafetalera de Coffee Relief',
+    canvasLeft: true,
+  },
+  {
+    id: 'seleccion',
+    eyebrow: 'Cosecha manual',
+    headline: 'Solo el grano en su punto',
+    body: 'Cada cereza se recoge a mano cuando alcanza el rojo exacto. Un recolector experto selecciona entre 40.000 granos por día y descarta los que el árbol no estaba listo para soltar.',
+    framesDir: '/images/origin/beat-2-seleccion',
+    frameCount: 60,
+    placeholderColor: '#fdd7a7',
+    imageAlt: 'Manos recogiendo cerezas de café maduras en la finca, cosecha manual en Ecuador',
+    canvasLeft: false,
+  },
+  {
+    id: 'tueste',
+    eyebrow: 'Quito, 2.850 m',
+    headline: 'El tueste donde nace',
+    body: 'Tostamos en origen, a 2.850 metros de altitud. La presión reducida exige más tiempo en el tambor — ese margen extra es donde desarrollamos los tonos a cacao, caramelo y nuez que definen a Coffee Relief.',
+    framesDir: '/images/origin/beat-3-tueste',
+    frameCount: 60,
+    placeholderColor: '#755a34',
+    imageAlt: 'Tambor tostador artesanal en Quito con granos de café en transformación',
+    canvasLeft: true,
+  },
+  {
+    id: 'comercio',
+    eyebrow: 'Sin intermediarios',
+    headline: 'Del productor a tu taza',
+    body: 'Compramos directamente de tres familias productoras en Imbabura, a precio por encima del mercado. Sin exportadores, sin brokers. El café excepcional requiere que quien lo cultiva pueda seguir cultivándolo.',
+    framesDir: '/images/origin/beat-4-comercio',
+    frameCount: 60,
+    placeholderColor: '#2f2f2c',
+    imageAlt: 'Agricultor ecuatoriano entregando sacos de café verde directamente a Coffee Relief',
+    canvasLeft: false,
+  },
+]
