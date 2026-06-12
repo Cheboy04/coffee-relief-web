@@ -480,6 +480,7 @@ export default function HomePage() {
 | Frames cargándose en data-saver mode | Sin guard `saveData` en CanvasScrub | Guard antes del IntersectionObserver |
 | Canvas vacío sin JavaScript | `<canvas>` sin contenido sin JS | `style={{ backgroundColor }}` + `<noscript>` |
 | OriginStory imágenes 400 | data.ts usaba `.jpg`, archivos son `.jpeg` | data.ts actualizado a `.jpeg` |
+| HeroTransition no mostraba imagen del producto | `targetRef` slot solo usaba `placeholderColor` — `<Image>` nunca se añadió al componente | Añadido `<Image fill object-cover>` condicional en `HeroTransition.tsx`, mismo patrón que `ProductCard` |
 
 ---
 
