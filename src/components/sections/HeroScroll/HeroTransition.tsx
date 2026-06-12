@@ -1,6 +1,7 @@
 'use client'
 
 import type { RefObject } from 'react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils/cn'
 import type { Product } from '@/types'
 
@@ -39,6 +40,17 @@ export default function HeroTransition({ bagRef, targetRef, settled, product }: 
         className="absolute flex aspect-product w-56 flex-col justify-end overflow-hidden rounded-lg opacity-0"
         style={{ backgroundColor: product.placeholderColor }}
       >
+        {/* Imagen del producto */}
+        {product.image && (
+          <Image
+            src={product.image}
+            alt={product.imageAlt}
+            fill
+            className="object-cover"
+            sizes="224px"
+            aria-hidden
+          />
+        )}
         {/* Gradiente de legibilidad */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" aria-hidden />
 
