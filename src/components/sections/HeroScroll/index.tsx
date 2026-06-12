@@ -25,7 +25,7 @@ import type { HeroScrollProps } from './types'
  */
 export default function HeroScroll({
   videoSrc = '/video/hero.mp4',
-  posterSrc = '/video/hero-poster.png',
+  posterSrc = '/images/hero/hero-poster.webp',
   frameDir = '/frames',
   frameCount = 161,
   shopAnchorId = 'shop',

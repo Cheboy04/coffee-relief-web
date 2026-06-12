@@ -32,7 +32,7 @@ export interface OverlayMessage {
 /** Props públicas del componente. Todas con default → uso sin props posible. */
 export interface HeroScrollProps {
   videoSrc?: string    // default '/video/hero.mp4' — usado en loop/static
-  posterSrc?: string   // default '/video/hero-poster.png'
+  posterSrc?: string   // default '/images/hero/hero-poster.webp'
   frameDir?: string    // default '/frames' — directorio de frames WebP para scrub desktop
   frameCount?: number  // default 161
   /** id del ancla destino al que apunta el CTA y donde aterriza la transición. */
