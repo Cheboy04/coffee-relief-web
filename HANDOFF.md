@@ -458,12 +458,7 @@ Bebidas frías       (La pausa)    — 3 ítems — grid 3 cols (lg)
 
 **Navbar:** `NAV_LINKS[0]` actualizado a `href: '#menu'` para anchor directo desde el home.
 
-**Imágenes del menú (cuando lleguen):**
-```
-1. Colocar en /public/images/menu/{id}.webp
-2. Actualizar src/data/menu.ts: image: '/images/menu/{id}.webp'
-3. pnpm build — el patrón imagen opcional ya lo maneja sin tocar componentes
-```
+**Imágenes del menú:** ✅ 11/11 recibidas y activas (`/public/images/menu/`)
 
 ---
 
@@ -670,7 +665,7 @@ Fase 14     Deploy a Vercel
 
 **Assets pendientes antes de continuar:**
 - ✅ Frames OriginStory beats 3 y 4 — recibidos y verificados (60 frames cada uno)
-- Imágenes reales del menú → `/public/images/menu/` (cuando lleguen, actualizar `src/data/menu.ts` sin tocar componentes)
+- ✅ Imágenes reales del menú — 11/11 recibidas (`/public/images/menu/`)
 
 ---
 
