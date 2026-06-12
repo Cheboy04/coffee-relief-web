@@ -3,6 +3,7 @@ export interface ExperienceCardData {
   // Front face
   title: string
   imageAlt: string
+  imageSrc?: string          // undefined → placeholder color, string → next/image
   placeholderColor: string   // CSS custom property, e.g. 'var(--color-primary-container)'
   ctaFront: {
     label: string

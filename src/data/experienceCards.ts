@@ -4,10 +4,8 @@ export const EXPERIENCE_CARDS: ExperienceCardData[] = [
   {
     id: 'cafeteria',
     title: 'La Cafetería',
-    // Imagen real: plano medio de la barra de espresso con luz natural lateral,
-    // estantes con sacos de café en arpillera al fondo. Temperatura cálida,
-    // sin personas en foco. Ratio portrait (3:4 o 3:5).
     imageAlt: 'Barra de espresso en la cafetería Coffee Relief, Quito',
+    imageSrc: '/images/experience/cafeteria.webp',
     placeholderColor: 'var(--color-primary-container)',
     ctaFront: { label: 'Visítanos', href: '#locations' },
     eyebrow: 'Cafetería · Quito',
@@ -18,9 +16,7 @@ export const EXPERIENCE_CARDS: ExperienceCardData[] = [
   {
     id: 'tienda',
     title: 'Café Online',
-    // Imagen real: close-up de funda kraft cerrada con etiqueta Coffee Relief sobre
-    // superficie de madera oscura, granos de café esparcidos alrededor. Luz cenital
-    // suave, fondo neutro cream. Ratio portrait.
+    imageSrc: '/images/experience/tienda.webp',
     imageAlt: 'Funda kraft de café Coffee Relief sobre mesa de madera',
     placeholderColor: 'var(--color-secondary-container)',
     ctaFront: { label: 'Comprar ahora', href: '#shop' },
@@ -32,9 +28,7 @@ export const EXPERIENCE_CARDS: ExperienceCardData[] = [
   {
     id: 'tasting',
     title: 'Tasting',
-    // Imagen real: manos sosteniendo tazas de cupping sobre mesa de madera clara,
-    // fichas de cata visibles. Composición cenital. Luz natural difusa, temperatura
-    // neutra-cálida. Ratio portrait.
+    imageSrc: '/images/experience/tasting.webp',
     imageAlt: 'Sesión de cupping con tazas de cata y fichas de evaluación sensorial',
     placeholderColor: 'var(--color-tertiary-container)',
     ctaFront: { label: 'Reservar sesión', href: '#experiencias' },
@@ -46,9 +40,7 @@ export const EXPERIENCE_CARDS: ExperienceCardData[] = [
   {
     id: 'brunch',
     title: 'Brunch',
-    // Imagen real: mesa completa de brunch con luz de ventana, cerámica artesanal local,
-    // flores secas, pan de masa madre y café en chemex. Composición editorial en 3/4,
-    // estética slow-food. Temperatura cálida. Ratio portrait.
+    imageSrc: '/images/experience/brunch.webp',
     imageAlt: 'Mesa de brunch Coffee Relief con cerámica artesanal y café de especialidad',
     placeholderColor: 'var(--color-surface-high)',
     ctaFront: { label: 'Ver menú', href: '#menu' },

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Image from 'next/image'
 import { useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 import Button from '@/components/ui/Button'
@@ -87,12 +88,22 @@ export default function ExperienceCard({ data }: ExperienceCardProps) {
           className={cn('card-face', prefersReducedMotion && isFlipped && 'opacity-0 pointer-events-none')}
           aria-hidden={isFlipped}
         >
-          <div
-            role="img"
-            aria-label={data.imageAlt}
-            className="absolute inset-0"
-            style={{ backgroundColor: data.placeholderColor }}
-          />
+          {data.imageSrc ? (
+            <Image
+              src={data.imageSrc}
+              alt={data.imageAlt}
+              fill
+              className="object-cover"
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
+            />
+          ) : (
+            <div
+              role="img"
+              aria-label={data.imageAlt}
+              className="absolute inset-0"
+              style={{ backgroundColor: data.placeholderColor }}
+            />
+          )}
           <div className="absolute inset-0 card-front-overlay" aria-hidden="true" />
           <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
             <h3 className="font-display text-headline-sm md:text-headline-md text-on-primary mb-4">
