@@ -1,4 +1,4 @@
-import { HeroScroll, TrustBar, OriginStory } from '@/components/sections'
+import { HeroScroll, TrustBar, OriginStory, ExperienceCards } from '@/components/sections'
 
 export default function HomePage() {
   return (
@@ -7,8 +7,9 @@ export default function HomePage() {
       <HeroScroll />
       <TrustBar />
       <OriginStory />
+      <ExperienceCards />
 
-      {/* PHASE 6+: ExperienceCards, ShopCoffee, ProductCard, etc. */}
+      {/* Fase 7: ShopCoffee + ProductCard + HeroTransition */}
       <section id="shop" className="bg-surface py-section px-5 md:px-16">
         <div className="mx-auto max-w-content">
           <p className="font-sans text-body-md text-on-surface-variant">

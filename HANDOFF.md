@@ -102,12 +102,15 @@ src/
       HeroScroll/       ← Fase 3 (ver §8)
       TrustBar/         ← Fase 4 (ver §9)
       OriginStory/      ← Fase 5 (ver §10)
-      index.ts          ← barrel: HeroScroll, TrustBar, OriginStory
+      ExperienceCards/  ← Fase 6 (ver §11)
+      index.ts          ← barrel actualizado
+      index.ts          ← barrel: HeroScroll, TrustBar, OriginStory, ExperienceCards
     ui/
-      Button.tsx        ← Client — 4 variantes, 3 tamaños, polimórfico a/button
+      Button.tsx        ← Client — 6 variantes (primary, secondary, ghost, ghost-light, inverse, link), 3 tamaños, polimórfico a/button
       SectionTitle.tsx  ← Server — h1-h4, 3 tamaños, eyebrow, alineación
   data/
     navigation.ts       ← NAV_LINKS, NAV_CTA, FOOTER_DATA
+    experienceCards.ts  ← EXPERIENCE_CARDS: ExperienceCardData[] (4 cards)
   lib/utils/cn.ts       ← clsx + twMerge helper
   types/index.ts        ← Product, Review, Location, Award, ProductSize
 ```
@@ -154,6 +157,8 @@ max-w-prose     ~680px  ← columnas de texto
 
 ### Utilities específicos de secciones
 ```
+h-experience-card     520px  ← altura card desktop — ExperienceCards
+h-experience-card-mob 420px  ← altura card mobile — ExperienceCards
 h-beat-track-mob  150vh  ← scroll track por beat (mobile) — OriginStory
 h-beat-track      200vh  ← scroll track por beat (desktop) — OriginStory
 h-beat-canvas-mob 56vw   ← altura canvas en mobile — OriginStory
@@ -170,11 +175,38 @@ z-sticky          30  ← Navbar
 --animate-fade-up:      fade-up 0.6s cubic-bezier(0.19,1,0.22,1) both
 --animate-fade-in:      fade-in 0.4s ease both
 --animate-trust-scroll: trust-scroll 30s linear infinite
+--animate-hint-pulse:   hint-pulse 2s ease-in-out 3   ← badge tap en ExperienceCards (pulsa 3× y para)
 
 @keyframes trust-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(calc(-100% / 3)); }  /* 3 copias */
 }
+@keyframes hint-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.88); }
+}
+```
+
+### Utilities flip 3D — ExperienceCards
+```
+card-wrapper          perspective: 1200px  ← contenedor externo (article)
+card-inner            transform-style:preserve-3d + transition 450ms  ← rota
+card-inner-flipped    rotateY(180deg)  ← estado volteado
+card-face             absolute inset-0 + backface-visibility:hidden + overflow:hidden + rounded-lg
+card-back-face        rotateY(180deg)  ← pre-rotado (cara trasera)
+card-front-overlay    gradiente espresso ascendente para legibilidad del texto
+```
+⚠️ `card-inner` NO debe tener `overflow:hidden` — rompe `transform-style:preserve-3d`.
+`overflow:hidden` va en `card-face` (hijos), no en el padre que rota.
+
+### Variantes Button
+```
+primary      bg-espresso, text-cream  ← acción principal
+secondary    border espresso, text-espresso  ← acción secundaria
+ghost        text-espresso, hover:bg-surface-low  ← sobre fondos claros
+ghost-light  border white/40, text-white, hover:bg-white/10  ← sobre fondos oscuros (card front overlay)
+inverse      bg-surface, text-primary  ← sobre fondos espresso (card back)
+link         text-secondary underline  ← links inline
 ```
 
 ### Variables CSS runtime
@@ -410,10 +442,86 @@ useEffect(() => {
 
 ---
 
-## 11. page.tsx — estado actual
+## 11. Fase 6 — ExperienceCards
+
+**Ruta:** `src/components/sections/ExperienceCards/`
+
+```
+index.tsx               ← Server Component — <section id="experiencias">, h2 sr-only
+ExperienceCardsGrid.tsx ← Client Component — Framer Motion stagger + grid 1/2/4 cols
+ExperienceCard.tsx      ← Client Component — flip state, hover/touch, badge hint
+types.ts                ← ExperienceCardData, ExperienceCardProps
+src/data/experienceCards.ts ← EXPERIENCE_CARDS: ExperienceCardData[] (4 cards)
+```
+
+**Frontera Server/Client:**
+- `index.tsx` es Server — solo shell semántico, sin estado
+- `ExperienceCardsGrid.tsx` es Client — Framer Motion `whileInView` stagger
+- `ExperienceCard.tsx` es Client — `useState(isFlipped, hasFlippedOnce, isTouch)`
+
+**4 cards — datos:**
+| id | title | eyebrow | placeholderColor |
+|---|---|---|---|
+| `cafeteria` | La Cafetería | Cafetería · Quito | `var(--color-primary-container)` |
+| `tienda` | Café Online | Tienda · Envío nacional | `var(--color-secondary-container)` |
+| `tasting` | Tasting | Experiencias · Cupping | `var(--color-tertiary-container)` |
+| `brunch` | Brunch | Menú · Sábados y domingos | `var(--color-surface-high)` |
+
+**Mecánica de flip:**
+```
+Desktop: onMouseEnter → flip, onMouseLeave → unflip
+Mobile:  onClick en card (no en CTA) → toggle. CTA usa e.stopPropagation()
+Teclado: Enter/Space en article → toggle
+```
+- CSS 3D puro: `card-wrapper` → `card-inner` → `card-face` (front + back)
+- Transición: 450ms `cubic-bezier(0.4, 0, 0.2, 1)`
+- `prefers-reduced-motion`: transición mata a 0.01ms (global override), flip funciona instantáneamente
+- Touch detection: `useState(() => window.matchMedia('(hover: none)').matches)` — lazy initializer, sin `useEffect`
+
+**Badge de tap hint (mobile):**
+- Solo visible en touch (`isTouch = true`)
+- Icono ↻ en `top-4 right-4`, `bg-white/20 backdrop-blur-sm rounded-full w-9 h-9`
+- Anima con `animate-hint-pulse` (pulsa 3× en 6s y para)
+- Desaparece con `transition-opacity duration-300` tras el primer flip (`hasFlippedOnce`)
+- `prefers-reduced-motion`: badge visible pero sin animación
+
+**Layout del grid:**
+```
+Mobile   (<768px):  grid-cols-1,  h-experience-card-mob (420px)
+Tablet   (768px+):  grid-cols-2,  h-experience-card-mob (420px)
+Desktop  (1280px+): grid-cols-4,  h-experience-card     (520px)
+gap-4 (16px) entre cards
+```
+
+**Entrance animation:**
+- Framer Motion `whileInView` + stagger `delay: index * 0.1`
+- `initial={{ opacity: 0, y: 24 }}` → `animate={{ opacity: 1, y: 0 }}`
+- `prefersReducedMotion ? false : initial` — deshabilita animación en reduced motion
+- `viewport={{ once: true, margin: '-80px' }}`
+
+**Accesibilidad:**
+- `<section id="experiencias" aria-labelledby="experiencias-heading">`
+- `<h2 id="experiencias-heading" className="sr-only">Nuestras experiencias</h2>`
+- `<h3>` en cada card (jerarquía h1 hero → h2 secciones → h3 cards)
+- `aria-hidden` en la cara no visible (front cuando flipped, back cuando no)
+- Placeholder: `role="img" aria-label={data.imageAlt}`
+- Front CTA: `tabIndex={isFlipped ? -1 : undefined}` — no alcanzable cuando oculto
+- Back CTA: `tabIndex={isFlipped ? undefined : -1}` — solo alcanzable cuando visible
+
+**Cuando lleguen las imágenes reales:**
+```
+1. Reemplazar el div role="img" por <Image> de next/image
+2. Usar imageAlt ya definido en src/data/experienceCards.ts
+3. Añadir campo imageSrc a ExperienceCardData en types.ts
+4. Actualizar data con las rutas reales
+```
+
+---
+
+## 12. page.tsx — estado actual
 
 ```tsx
-import { HeroScroll, TrustBar, OriginStory } from '@/components/sections'
+import { HeroScroll, TrustBar, OriginStory, ExperienceCards } from '@/components/sections'
 
 export default function HomePage() {
   return (
@@ -421,8 +529,9 @@ export default function HomePage() {
       <HeroScroll />           {/* Fase 3 — full-bleed, sin pt-navbar */}
       <TrustBar />             {/* Fase 4 — bg-surface-low */}
       <OriginStory />          {/* Fase 5 — bg-surface, id="origin" */}
+      <ExperienceCards />      {/* Fase 6 — bg-surface, id="experiencias" */}
 
-      {/* PHASE 6+: ExperienceCards, ShopCoffee, ProductCard, etc. */}
+      {/* Fase 7: ShopCoffee + ProductCard + HeroTransition */}
       <section id="shop" className="bg-surface py-section px-5 md:px-16">
         <div className="mx-auto max-w-content">
           <p className="font-sans text-body-md text-on-surface-variant">
@@ -437,7 +546,7 @@ export default function HomePage() {
 
 ---
 
-## 12. Estado de verificación
+## 13. Estado de verificación
 
 | Fase | Componente | Estado | Build | Types | Lint |
 |---|---|---|---|---|---|
@@ -447,14 +556,17 @@ export default function HomePage() {
 | 3 | HeroScroll (canvas frame sequence) | ✅ | ✓ | ✓ | ✓ |
 | 4 | TrustBar (marquee infinito) | ✅ | ✓ | ✓ | ✓ |
 | 5 | OriginStory (canvas frame scrub × 4 beats) | ✅ | ✓ | ✓ | ✓ |
-| 6 | ExperienceCards | ⏳ | — | — | — |
+| 6 | ExperienceCards (flip cards × 4 experiencias) | ✅ | ✓ | ✓ | ✓ |
+| 7 | ShopCoffee + ProductCard + HeroTransition | ⏳ | — | — | — |
 
 ---
 
-## 13. Bugs encontrados y resueltos
+## 14. Bugs encontrados y resueltos
 
 | Bug | Causa | Resolución |
 |---|---|---|
+| `setIsTouch` en `useEffect` violaba `react-hooks/set-state-in-effect` | setState síncrono en body de effect — ESLint lo rechaza | Convertido a `useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches)` — lazy initializer, sin effect |
+| `aria-expanded` en `<article>` | El rol implícito `article` no soporta aria-expanded según ARIA spec | Eliminado — la accesibilidad del flip está cubierta por `aria-hidden` en cada cara (front/back) |
 | Next.js 16 instalado en lugar de 14 | `@latest` | Aprobado mantener v16 + Tailwind v4 |
 | `Button` AsAnchor tipo restrictivo | Solo declaraba href/target/rel | Extiende todos los AnchorHTMLAttributes |
 | ESLint warnings `_*` vars | Destructuring de props shared | `varsIgnorePattern: '^_'` en eslint.config.mjs |
@@ -472,7 +584,7 @@ export default function HomePage() {
 
 ---
 
-## 14. Decisiones de diseño — no revertir sin consultar
+## 15. Decisiones de diseño — no revertir sin consultar
 
 1. **Navbar siempre transparente** — nunca bg-surface ni color de fondo
 2. **`--navbar-fg-color` CSS variable** — color texto navbar via CSS var, no prop ni JS scroll
@@ -484,6 +596,11 @@ export default function HomePage() {
 8. **Sin valores arbitrarios `[]`** — agregar @utility a globals.css
 9. **GSAP dynamic import** — siempre `await import('gsap')` dentro de useEffect, nunca import estático de tope
 10. **CSS `scale` (no `transform: scale`)** en elementos que también anima GSAP con translateY
+15. **`(hover: none)` para detección touch** — `window.matchMedia('(hover: none)').matches` en lazy initializer de `useState`, no en `useEffect`. Consistente con el patrón del proyecto. Aplicar a cualquier componente futuro que diferencie comportamiento hover/touch.
+16. **Flip card CSS 3D** — `card-wrapper` (perspective) → `card-inner` (preserve-3d + transition) → `card-face` (absolute + backface-hidden). `overflow: hidden` va en `card-face`, no en `card-inner` (evita conflicto con preserve-3d). El `card-inner` NO debe tener `overflow: hidden`.
+17. **`aria-expanded` no válido en `<article>`** — ARIA spec no permite `aria-expanded` en el rol implícito `article`. Usar `aria-hidden` en los hijos para comunicar estado de visibilidad al screen reader.
+18. **Framer Motion `whileInView` para stagger de entrada** — usar FM ya cargado (en MobileMenu) en lugar de GSAP para staggers simples sin ScrollTrigger. `initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}` — `false` como initial deshabilita la animación de entrada (correcto para reduced motion).
+
 11. **Canvas frame scrub en OriginStory** — misma técnica que el hero, no parallax estático. Razón: coherencia del lenguaje visual del sitio. Cada beat tiene 60 frames WebP en `/public/images/origin/beat-N-nombre/frame_000000.webp`.
 12. **`framesRef` pattern en useCanvasScrub** — ScrollTrigger registrado con deps `[]` vacías; `framesRef` y `progressRef` se actualizan via `useEffect` separado. Evita re-registro infinito del trigger al llegar batches de frames.
 13. **Frame naming: `frame_000000.webp`** — guion bajo, 6 dígitos, 0-indexado, WebP. Igual que hero. NO usar guion, 3 dígitos ni .jpg. Si los assets reales usan otro formato, actualizar `frameSrc()` en `useFrameLoader.ts`.
@@ -491,7 +608,7 @@ export default function HomePage() {
 
 ---
 
-## 15. Patrones de código establecidos
+## 16. Patrones de código establecidos
 
 ### GSAP en Client Components
 ```typescript
@@ -515,6 +632,39 @@ useEffect(() => {
 // n copias: suficientes para que copia_width >= viewport_width
 // keyframe: translateX(calc(-100% / n_copias))
 // cada grupo: gap-x-12 pr-12 (pr igual al gap para cierre seamless)
+```
+
+### Flip Card 3D (ExperienceCards — Fase 6)
+```
+Jerarquía CSS: card-wrapper (perspective) → card-inner (preserve-3d) → card-face (backface-hidden)
+card-inner NO tiene overflow:hidden — rompe preserve-3d
+card-face SÍ tiene overflow:hidden — para clip de contenido interno
+
+isFlipped       → agrega card-inner-flipped (rotateY 180deg), 450ms ease
+hasFlippedOnce  → oculta badge hint tras primer tap
+isTouch         → useState lazy init (matchMedia hover:none), sin useEffect
+```
+
+### Tap Hint Badge (ExperienceCards — Fase 6)
+```tsx
+// Solo en isTouch, desaparece al primer flip con fade:
+{isTouch && (
+  <div
+    aria-hidden="true"
+    className={cn(
+      'absolute top-4 right-4 z-raised',
+      'flex items-center justify-center w-9 h-9',
+      'rounded-full bg-white/20 backdrop-blur-sm',
+      'transition-opacity duration-300',
+      !prefersReducedMotion && 'animate-hint-pulse',
+      hasFlippedOnce && 'opacity-0 pointer-events-none',
+    )}
+  >
+    <FlipHintIcon />
+  </div>
+)}
+// animate-hint-pulse: 3 iteraciones × 2s = 6s, luego para (no infinite)
+// Aplicar este patrón en cualquier elemento cuya interactividad no sea obvia en touch
 ```
 
 ### Canvas Frame Scrub (OriginStory — Fase 5)
@@ -547,7 +697,7 @@ ctx.drawImage(img, (cw - img.naturalWidth*scale)/2, (ch - img.naturalHeight*scal
 
 ---
 
-## 16. Roadmap
+## 17. Roadmap
 
 ```
 Fase 0   ✅ Setup + estructura + tokens
@@ -556,8 +706,8 @@ Fase 2   ✅ Navbar + Footer
 Fase 3   ✅ HeroScroll (canvas frame sequence + GSAP scroll narrative)
 Fase 4   ✅ TrustBar (CSS marquee infinito)
 Fase 5   ✅ OriginStory (canvas frame scrub × 4 beats)
-Fase 6   ⏳ ExperienceCards
-Fase 7      ShopCoffee + ProductCard + CoffeeQuiz
+Fase 6   ✅ ExperienceCards (flip cards × 4 experiencias)
+Fase 7   ⏳ ShopCoffee + ProductCard + HeroTransition
 Fase 8      MenuVisual
 Fase 9      Sustainability + Awards
 Fase 10     Reviews + BlogPreview
@@ -569,7 +719,7 @@ Fase 14     Deploy a Vercel
 
 ---
 
-## 17. Cómo continuar en sesión fresca
+## 18. Cómo continuar en sesión fresca
 
 1. Leer este HANDOFF.md completo
 2. Leer `docs/DESIGN.md` (fuente de verdad visual)
@@ -577,10 +727,10 @@ Fase 14     Deploy a Vercel
 4. Ejecutar `pnpm dev` para ver estado actual en browser
 5. Los prompts de cada fase están en `docs/prompts/PROMPT_FASE{N}_*.md`
 
-**Para arrancar Fase 6, decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y el `docs/DESIGN.md`. Fases 0–5 completadas. El prompt de la fase 6 estará en `docs/prompts/PROMPT_FASE6_*.md`. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+**Para arrancar Fase 7, decirle a Claude:**
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y el `docs/DESIGN.md`. Fases 0–6 completadas. Arrancamos la Fase 7 — ShopCoffee + ProductCard + HeroTransition. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
 ---
 
-*Documento actualizado al finalizar la Fase 5 (canvas scrub) del proyecto Coffee Relief Web.*
+*Documento actualizado al finalizar la Fase 6 (ExperienceCards — flip cards) del proyecto Coffee Relief Web.*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*

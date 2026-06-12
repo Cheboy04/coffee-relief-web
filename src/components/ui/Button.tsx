@@ -4,7 +4,7 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'reac
 import { cn } from '@/lib/utils/cn'
 
 type Shared = {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'link'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'ghost-light' | 'inverse' | 'link'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
   className?: string
@@ -35,6 +35,10 @@ const variantClasses: Record<NonNullable<Shared['variant']>, string> = {
   primary: 'bg-espresso text-on-primary hover:bg-primary-container active:scale-95',
   secondary: 'border border-primary/20 text-primary hover:bg-surface-low hover:border-primary/40 active:scale-95',
   ghost: 'text-primary hover:bg-surface-low active:scale-95',
+  // For use on dark overlay backgrounds (card front)
+  'ghost-light': 'border border-white/40 text-on-primary hover:bg-white/10 active:scale-95 focus-visible:outline-white',
+  // For use on espresso backgrounds (card back)
+  inverse: 'bg-surface text-primary hover:bg-surface-low active:scale-95',
   link: 'text-secondary underline-offset-4 rounded-none hover:underline',
 }
 
