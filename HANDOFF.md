@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-12 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7
+> Última actualización: 2026-06-12 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1
 
 ---
 
@@ -355,39 +355,44 @@ CoffeeQuiz/
 types.ts
 ```
 
-### Los 3 productos (`src/data/products.ts`)
+### Los 3 productos (`src/data/products.ts`) — catálogo real
 
-| id | name | intensity | roastLevel | origin | flavorNotes | 250g | 500g | 1kg |
-|---|---|---|---|---|---|---|---|---|
-| `valle-chota` | Valle del Chota | suave | light | Valle del Chota, Carchi | Durazno · Hibisco · Panela | $9 | $16 | $28 |
-| `pichincha-2850` | Pichincha 2850 | medio | medium | Nanegal, Pichincha | Cacao · Avellana · Naranja | $8 | $14 | $24 |
-| `zamora-kraft` | Zamora Kraft | intenso | medium-dark | Zamora Chinchipe | Chocolate negro · Tabaco · Caramelo | $8 | $14 | $24 |
+| id | name | sku | intensity | roastLevel | origin | flavorNotes | precio |
+|---|---|---|---|---|---|---|---|
+| `bold` | Bold Relief | CR-US-1LB-B-2026 | intenso | medium-dark | Zamora Chinchipe | Chocolate · Dulzura estructurada · Cuerpo pleno | $36.50 / 1 lb |
+| `tropical` | Tropical Relief | CR-US-1LB-T-2026 | suave | medium | Valle del Chota, Carchi | Floral · Cítrico · Acidez brillante | $36.50 / 1 lb |
+| `immersive` | Immersive Relief | CR-US-1LB-I-2026 | medio | medium | Nanegal, Pichincha | Suave · Balanceado · Dulzura accesible | $36.50 / 1 lb |
 
-**Nomenclatura imágenes de productos:**
+**Imágenes reales recibidas:**
 ```
-public/images/products/{product.id}.webp
-  valle-chota.webp       ← ratio portrait 3:4, 800×1040px recomendado, WebP
-  pichincha-2850.webp
-  zamora-kraft.webp
+public/images/products/bold.webp       ← ~1075×1463px, ratio 3:4
+public/images/products/tropical.webp   ← ~1075×1463px, ratio 3:4
+public/images/products/immersive.webp  ← ~1104×1424px, ratio 3:4
 ```
-Cuando lleguen, actualizar `image: ''` → `image: '/images/products/valle-chota.webp'` en `src/data/products.ts`. La `ProductCard` ya tiene lógica condicional `product.image ? <Image> : <div placeholder>`.
+
+**Bundles pendientes para `/tienda`** (fuera de alcance del home):
+- Origin Collection
+- Roaster Selection (2.2 lb)
+- Roaster's Bulk (5 lb)
+
+Estos 3 bundles sí tendrán variantes de tamaño/precio — `sizes: ProductSize[]` sigue siendo la estructura correcta.
 
 ### ProductCard
-- SizeSelector: 3 radio pills (`fieldset`+`legend sr-only`). Inactivo: `bg-surface-low border-primary/10`. Activo: `bg-primary text-on-primary`.
-- Precio: `aria-live="polite" aria-atomic="true"` — cambia instantáneamente al seleccionar tamaño.
-- CTA: estado local `added` → "Agregar" → "Agregado ✓" → revierte a "Agregar" tras 2s vía `setTimeout` con cleanup en useEffect. Sin carrito (Zustand pendiente).
+- **Sin SizeSelector** — precio fijo $36.50 / 1 lb. `SizeSelector.tsx` eliminado (Fase 7.1).
+- Precio: texto estático `$36.50 / 1 lb` — sin `aria-live` (precio no cambia).
+- CTA: estado local `added` → "Agregar" → "Agregado ✓" → revierte tras 2s vía `setTimeout`. Sin carrito (Zustand pendiente).
 - `data-product-id={product.id}` — usado por CoffeeQuiz para el highlight.
 - `data-hero-target="first"` — en `isFirst` card, hook semántico para futura integración.
 
 ### CoffeeQuiz — algoritmo de scoring
 
-Cada opción suma puntos a `{ suave, medio, intenso }`. Al final de 3 preguntas, la intensidad con mayor total determina el producto. **Empate → `medio` (Pichincha 2850) siempre gana.**
+Cada opción suma puntos a `{ suave, medio, intenso }`. Al final de 3 preguntas, la intensidad con mayor total determina el producto. **Empate → `medio` (Immersive Relief) siempre gana.**
 
 ```
 intensidad ganadora → producto:
-  suave   → valle-chota
-  medio   → pichincha-2850
-  intenso → zamora-kraft
+  suave   → tropical   (Tropical Relief)
+  medio   → immersive  (Immersive Relief)
+  intenso → bold       (Bold Relief)
 ```
 
 **Preguntas:**
@@ -454,6 +459,7 @@ export default function HomePage() {
 | 5 | OriginStory (canvas frame scrub × 4 beats) | ✅ | ✓ | ✓ | ✓ |
 | 6 | ExperienceCards (flip cards + imágenes reales) | ✅ | ✓ | ✓ | ✓ |
 | 7 | ShopCoffee + ProductCard + CoffeeQuiz + HeroTransition | ✅ | ✓ | ✓ | ✓ |
+| 7.1 | Catálogo real (Bold / Tropical / Immersive) + imágenes | ✅ | ✓ | ✓ | ✓ |
 | 8 | MenuVisual | ⏳ | — | — | — |
 
 ---
@@ -595,6 +601,7 @@ Fase 4   ✅ TrustBar (CSS marquee infinito)
 Fase 5   ✅ OriginStory (canvas frame scrub × 4 beats)
 Fase 6   ✅ ExperienceCards (flip cards × 4 experiencias + imágenes reales)
 Fase 7   ✅ ShopCoffee (ProductCard + CoffeeQuiz + HeroTransition)
+Fase 7.1 ✅ Catálogo real — Bold / Tropical / Immersive + imágenes reales
 Fase 8   ⏳ MenuVisual
 Fase 9      Sustainability + Awards
 Fase 10     Reviews + BlogPreview
@@ -615,11 +622,10 @@ Fase 14     Deploy a Vercel
 4. Los prompts de cada fase están en `docs/prompts/`
 
 **Para arrancar Fase 8, decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–7 completadas. Arrancamos la Fase 8 — MenuVisual. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–7.1 completadas. Arrancamos la Fase 8 — MenuVisual. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
 **Assets pendientes antes de continuar:**
 - Frames reales para OriginStory beats 3 y 4 (`public/images/origin/beat-3-tueste/`, `beat-4-comercio/`)
-- Imágenes de productos (`public/images/products/valle-chota.webp`, `pichincha-2850.webp`, `zamora-kraft.webp`)
 
 ---
 
