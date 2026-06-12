@@ -192,6 +192,7 @@ z-raised          10
 z-dropdown        20   ← HeroTransition morph layer
 z-sticky          30   ← Navbar
 aspect-product    ratio para funda kraft y card preview en HeroTransition
+aspect-menu-item  4/3 — fotografía de menú (paisaje) — MenuItemCard
 ```
 
 ### Animaciones
@@ -313,7 +314,7 @@ Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × 60 frames WebP.
 public/images/origin/beat-N-nombre/frame_000000.webp   ← 0-indexed, 6 dígitos, guion bajo
 ```
 
-**Beats pendientes de frames reales:** beat-3-tueste y beat-4-comercio (carpetas vacías).
+**Todos los beats tienen frames reales:** 60 frames WebP × 4 beats (beat-3-tueste y beat-4-comercio confirmados 2026-06-12).
 
 **Patrón framesRef** — ScrollTrigger con deps `[]` vacías; framesRef actualizado por useEffect separado para evitar re-registro.
 
@@ -425,10 +426,51 @@ intensidad ganadora → producto:
 
 ---
 
+## 12.1 Fase 8 — MenuVisual
+
+**Ruta:** `src/components/sections/MenuVisual/`
+
+```
+index.tsx                ← Server — section#menu + SectionTitle + categorías + CTA
+MenuCategorySection.tsx  ← Server — h3 + grid de cards por categoría
+MenuItemCard.tsx         ← Server — imagen/placeholder + nombre + descripción + precio + tag
+types.ts                 ← MenuCategory, MenuItem, MenuItemTag
+```
+
+**Datos:** `src/data/menu.ts` — 3 categorías + 11 ítems.
+
+```
+Cafés de especialidad (La taza)   — 4 ítems — grid 2 cols
+Brunch              (La mesa)     — 4 ítems — grid 2 cols
+Bebidas frías       (La pausa)    — 3 ítems — grid 3 cols (lg)
+```
+
+**Tags:**
+- `signature` → `bg-primary-container` + `text-on-primary-container` (espresso/cream)
+- `vegano` → `bg-secondary-container` + `text-on-secondary-container` (arena/marrón)
+- `sin-gluten` → `bg-surface-high` + `text-on-surface-variant` (gris/grafito)
+
+**Animación de entrada:** CSS `animate-fade-up` con `animation-delay` inline × 80ms por ítem. Stagger reiniciado por categoría. 100% Server Component — cero JS para la sección.
+
+**Fondo:** `bg-surface-low` — alterna con ShopCoffee (`bg-surface`).
+
+**CTA:** `Button href="#reservas" variant="secondary"` — anchor pendiente (sin sistema de reservas aún).
+
+**Navbar:** `NAV_LINKS[0]` actualizado a `href: '#menu'` para anchor directo desde el home.
+
+**Imágenes del menú (cuando lleguen):**
+```
+1. Colocar en /public/images/menu/{id}.webp
+2. Actualizar src/data/menu.ts: image: '/images/menu/{id}.webp'
+3. pnpm build — el patrón imagen opcional ya lo maneja sin tocar componentes
+```
+
+---
+
 ## 13. page.tsx — estado actual
 
 ```tsx
-import { HeroScroll, TrustBar, OriginStory, ExperienceCards } from '@/components/sections'
+import { HeroScroll, TrustBar, OriginStory, ExperienceCards, MenuVisual } from '@/components/sections'
 import ShopCoffee from '@/components/sections/ShopCoffee'
 
 export default function HomePage() {
@@ -439,7 +481,8 @@ export default function HomePage() {
       <OriginStory />          {/* Fase 5 — bg-surface, id="origin" */}
       <ExperienceCards />      {/* Fase 6 — bg-surface, id="experiencias" */}
       <ShopCoffee />           {/* Fase 7 — bg-surface, id="shop" */}
-      {/* Fase 8: MenuVisual */}
+      <MenuVisual />           {/* Fase 8 — bg-surface-low, id="menu" */}
+      {/* Fase 9: Sustainability + Awards */}
     </>
   )
 }
@@ -460,7 +503,7 @@ export default function HomePage() {
 | 6 | ExperienceCards (flip cards + imágenes reales) | ✅ | ✓ | ✓ | ✓ |
 | 7 | ShopCoffee + ProductCard + CoffeeQuiz + HeroTransition | ✅ | ✓ | ✓ | ✓ |
 | 7.1 | Catálogo real (Bold / Tropical / Immersive) + imágenes | ✅ | ✓ | ✓ | ✓ |
-| 8 | MenuVisual | ⏳ | — | — | — |
+| 8 | MenuVisual (3 categorías · 11 ítems · 100% Server) | ✅ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -586,7 +629,7 @@ return () => clearTimeout(id)
   <div role="img" aria-label={product.imageAlt} className="absolute inset-0"
     style={{ backgroundColor: product.placeholderColor }} />
 )}
-// Mismo patrón en ExperienceCard (imageSrc) y ProductCard (image)
+// Mismo patrón en ExperienceCard (imageSrc), ProductCard (image) y MenuItemCard (image)
 ```
 
 ---
@@ -603,7 +646,7 @@ Fase 5   ✅ OriginStory (canvas frame scrub × 4 beats)
 Fase 6   ✅ ExperienceCards (flip cards × 4 experiencias + imágenes reales)
 Fase 7   ✅ ShopCoffee (ProductCard + CoffeeQuiz + HeroTransition)
 Fase 7.1 ✅ Catálogo real — Bold / Tropical / Immersive + imágenes reales
-Fase 8   ⏳ MenuVisual
+Fase 8   ✅ MenuVisual (3 categorías · 11 ítems · 100% Server Components)
 Fase 9      Sustainability + Awards
 Fase 10     Reviews + BlogPreview
 Fase 11     Locations
@@ -622,13 +665,14 @@ Fase 14     Deploy a Vercel
 3. Ejecutar `pnpm build` — debe pasar limpio
 4. Los prompts de cada fase están en `docs/prompts/`
 
-**Para arrancar Fase 8, decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–7.1 completadas. Arrancamos la Fase 8 — MenuVisual. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+**Para arrancar Fase 9, decirle a Claude:**
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–8 completadas. Arrancamos la Fase 9 — Sustainability + Awards. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
 **Assets pendientes antes de continuar:**
-- Frames reales para OriginStory beats 3 y 4 (`public/images/origin/beat-3-tueste/`, `beat-4-comercio/`)
+- ✅ Frames OriginStory beats 3 y 4 — recibidos y verificados (60 frames cada uno)
+- Imágenes reales del menú → `/public/images/menu/` (cuando lleguen, actualizar `src/data/menu.ts` sin tocar componentes)
 
 ---
 
-*Documento actualizado al finalizar la Fase 7 (ShopCoffee — ProductCard + CoffeeQuiz + HeroTransition).*
+*Documento actualizado al finalizar la Fase 8 (MenuVisual — sección editorial del menú).*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*

@@ -1,7 +1,7 @@
 import type { NavLinkItem, FooterLinkGroup, SocialLink } from '@/components/layout/types'
 
 export const NAV_LINKS: NavLinkItem[] = [
-  { label: 'Menú',        href: '/menu' },
+  { label: 'Menú',        href: '#menu' },
   { label: 'Tienda',      href: '/shop' },
   { label: 'Origen',      href: '/about' },
   { label: 'Blog',        href: '/blog' },

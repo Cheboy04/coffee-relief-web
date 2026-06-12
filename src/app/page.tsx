@@ -1,4 +1,4 @@
-import { HeroScroll, TrustBar, OriginStory, ExperienceCards } from '@/components/sections'
+import { HeroScroll, TrustBar, OriginStory, ExperienceCards, MenuVisual } from '@/components/sections'
 import ShopCoffee from '@/components/sections/ShopCoffee'
 
 export default function HomePage() {
@@ -10,7 +10,8 @@ export default function HomePage() {
       <OriginStory />
       <ExperienceCards />
       <ShopCoffee />
-      {/* Fase 8: MenuVisual */}
+      <MenuVisual />
+      {/* Fase 9: Sustainability + Awards */}
     </>
   )
 }

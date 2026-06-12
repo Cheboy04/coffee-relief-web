@@ -249,6 +249,13 @@
 @utility aspect-product {
   aspect-ratio: 3 / 4;
 }
+@utility aspect-menu-item {
+  aspect-ratio: 4 / 3;
+}
+/* Width of exactly 1 column in the 3-col menu grid (gap-6 = 1.5rem × 2) */
+@utility w-menu-col {
+  width: calc((100% - 3rem) / 3);
+}
 
 /* ─── OriginStory — canvas frame scrub layout tokens ───────────────────────── */
 @utility h-beat-track-mob  { height: 150vh; }   /* mobile scroll track per beat */
@@ -344,6 +351,11 @@
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+    .animate-fade-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
   }
 }
