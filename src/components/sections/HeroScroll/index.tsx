@@ -6,6 +6,7 @@ import HeroCanvas, { type HeroCanvasHandle } from './HeroCanvas'
 import HeroVideo from './HeroVideo'
 import HeroOverlay from './HeroOverlay'
 import HeroTransition from './HeroTransition'
+import { PRODUCTS } from '@/data/products'
 import { useHeroMode } from './useHeroMode'
 import { useHeroScrub } from './useHeroScrub'
 import { useHeroTransition } from './useHeroTransition'
@@ -138,7 +139,12 @@ export default function HeroScroll({
             shopAnchorId={shopAnchorId}
           />
           {mode === 'scrub' && (
-            <HeroTransition bagRef={bagRef} targetRef={targetRef} settled={transition.settled} />
+            <HeroTransition
+              bagRef={bagRef}
+              targetRef={targetRef}
+              settled={transition.settled}
+              product={PRODUCTS[0]}
+            />
           )}
         </div>
       </div>

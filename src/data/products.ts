@@ -1,0 +1,85 @@
+import type { Product } from '@/types'
+
+export const PRODUCTS: Product[] = [
+  {
+    id: 'valle-chota',
+    slug: 'valle-del-chota',
+    name: 'Valle del Chota',
+    origin: 'Valle del Chota, Carchi',
+    altitude: '1.800–2.100 msnm',
+    process: 'Lavado',
+    roastLevel: 'light',
+    intensity: 'suave',
+    // Imagen: funda kraft blanca sobre madera clara, flores secas en el encuadre, luz cenital difusa. Ratio 3:4.
+    imageAlt: 'Funda Valle del Chota sobre madera clara con flores secas',
+    placeholderColor: 'var(--color-secondary-container)',
+    flavorNotes: ['Durazno', 'Hibisco', 'Panela'],
+    grindOptions: ['Grano entero', 'Pour over', 'Chemex', 'AeroPress'],
+    defaultSizeId: '250g',
+    sizes: [
+      { id: '250g', label: '250 g', price: 9 },
+      { id: '500g', label: '500 g', price: 16 },
+      { id: '1kg',  label: '1 kg',  price: 28 },
+    ],
+    description: {
+      es: 'Un café de altura con carácter frutal y acidez brillante. Ideal para métodos de filtrado que respetan cada nota del grano.',
+      en: 'A high-altitude coffee with fruity character and bright acidity. Ideal for filter methods.',
+    },
+    image: '',
+    featured: true,
+  },
+  {
+    id: 'pichincha-2850',
+    slug: 'pichincha-2850',
+    name: 'Pichincha 2850',
+    origin: 'Nanegal, Pichincha',
+    altitude: '2.600–3.000 msnm',
+    process: 'Honey',
+    roastLevel: 'medium',
+    intensity: 'medio',
+    // Imagen: funda kraft natural sobre fondo espresso oscuro, granos esparcidos en primer plano, luz lateral cálida. Ratio 3:4.
+    imageAlt: 'Funda Pichincha 2850 sobre superficie oscura con granos de café',
+    placeholderColor: 'var(--color-primary-container)',
+    flavorNotes: ['Cacao', 'Avellana', 'Naranja'],
+    grindOptions: ['Grano entero', 'Prensa francesa', 'Moka', 'Espresso'],
+    defaultSizeId: '250g',
+    sizes: [
+      { id: '250g', label: '250 g', price: 8 },
+      { id: '500g', label: '500 g', price: 14 },
+      { id: '1kg',  label: '1 kg',  price: 24 },
+    ],
+    description: {
+      es: 'Criado a 2.850 metros, proceso honey que amplifica el dulzor natural. El café equilibrado del que nadie se cansa.',
+      en: 'Grown at 2,850 metres, honey process that amplifies natural sweetness.',
+    },
+    image: '',
+    featured: true,
+  },
+  {
+    id: 'zamora-kraft',
+    slug: 'zamora-kraft',
+    name: 'Zamora Kraft',
+    origin: 'Zamora Chinchipe',
+    altitude: '1.400–1.800 msnm',
+    process: 'Natural',
+    roastLevel: 'medium-dark',
+    intensity: 'intenso',
+    // Imagen: espresso en cerámica artesanal oscura, vapor sutil, superficie de pizarra, fondo neutro oscuro. Ratio 3:4.
+    imageAlt: 'Espresso servido en cerámica artesanal oscura de Coffee Relief',
+    placeholderColor: 'var(--color-tertiary-container)',
+    flavorNotes: ['Chocolate negro', 'Tabaco', 'Caramelo'],
+    grindOptions: ['Grano entero', 'Espresso', 'Moka'],
+    defaultSizeId: '250g',
+    sizes: [
+      { id: '250g', label: '250 g', price: 8 },
+      { id: '500g', label: '500 g', price: 14 },
+      { id: '1kg',  label: '1 kg',  price: 24 },
+    ],
+    description: {
+      es: 'Proceso natural de las tierras bajas de Zamora. Cuerpo pleno, final persistente. Para quienes quieren que el café se sienta.',
+      en: 'Natural process from the lowlands of Zamora. Full body, persistent finish.',
+    },
+    image: '',
+    featured: false,
+  },
+]

@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils/cn'
 
 export interface SectionTitleProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4'
+  id?: string
   size?: 'display' | 'headline-md' | 'headline-sm'
   eyebrow?: string
   align?: 'left' | 'center' | 'right'
@@ -24,6 +25,7 @@ const alignClasses: Record<NonNullable<SectionTitleProps['align']>, string> = {
 
 export default function SectionTitle({
   as: Tag = 'h2',
+  id,
   size = 'headline-md',
   eyebrow,
   align = 'left',
@@ -37,7 +39,7 @@ export default function SectionTitle({
           {eyebrow}
         </span>
       )}
-      <Tag className={cn('font-display text-on-surface', sizeClasses[size], className)}>
+      <Tag id={id} className={cn('font-display text-on-surface', sizeClasses[size], className)}>
         {children}
       </Tag>
     </div>

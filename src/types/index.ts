@@ -1,6 +1,6 @@
 export interface ProductSize {
-  label: string
-  weight: string
+  id: string        // '250g' | '500g' | '1kg'
+  label: string     // '250 g' | '500 g' | '1 kg'
   price: number
 }
 
@@ -12,11 +12,15 @@ export interface Product {
   altitude: string
   process: string
   roastLevel: 'light' | 'medium' | 'medium-dark'
+  intensity: 'suave' | 'medio' | 'intenso'
   flavorNotes: string[]
   grindOptions: string[]
   sizes: ProductSize[]
+  defaultSizeId: string
   description: { es: string; en: string }
   image: string
+  imageAlt: string
+  placeholderColor: string
   featured: boolean
 }
 

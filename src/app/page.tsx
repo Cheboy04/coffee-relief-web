@@ -1,4 +1,5 @@
 import { HeroScroll, TrustBar, OriginStory, ExperienceCards } from '@/components/sections'
+import ShopCoffee from '@/components/sections/ShopCoffee'
 
 export default function HomePage() {
   return (
@@ -8,15 +9,8 @@ export default function HomePage() {
       <TrustBar />
       <OriginStory />
       <ExperienceCards />
-
-      {/* Fase 7: ShopCoffee + ProductCard + HeroTransition */}
-      <section id="shop" className="bg-surface py-section px-5 md:px-16">
-        <div className="mx-auto max-w-content">
-          <p className="font-sans text-body-md text-on-surface-variant">
-            Sección Tienda — se construye en las próximas fases.
-          </p>
-        </div>
-      </section>
+      <ShopCoffee />
+      {/* Fase 8: MenuVisual */}
     </>
   )
 }
