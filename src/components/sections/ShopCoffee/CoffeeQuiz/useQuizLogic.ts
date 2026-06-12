@@ -5,15 +5,15 @@ import { QUIZ_QUESTIONS } from './questions'
 import type { QuizResult, IntensityKey } from './types'
 
 const RESULT_MESSAGES: Record<string, string> = {
-  'valle-chota':    'Delicado, frutal y brillante — perfecto para tu mañana.',
-  'pichincha-2850': 'Equilibrado y dulce — el café del que nadie se cansa.',
-  'zamora-kraft':   'Intenso, con cuerpo pleno y un final que se queda.',
+  'bold':      'Profundo, persistente y sin rodeos — el café para los que saben lo que quieren.',
+  'immersive': 'Suave, equilibrado y sin sorpresas — el café que te acompaña cada día.',
+  'tropical':  'Brillante, frutal y lleno de vida — el café para quienes buscan algo diferente.',
 }
 
 const INTENSITY_TO_PRODUCT: Record<IntensityKey, string> = {
-  suave:   'valle-chota',
-  medio:   'pichincha-2850',
-  intenso: 'zamora-kraft',
+  suave:   'tropical',
+  medio:   'immersive',
+  intenso: 'bold',
 }
 
 function computeResult(answers: Record<string, string>): QuizResult {
@@ -29,7 +29,7 @@ function computeResult(answers: Record<string, string>): QuizResult {
     totals.intenso += option.scores.intenso
   }
 
-  // Empate → medio siempre gana
+  // Empate → medio siempre gana (Immersive Relief)
   let winner: IntensityKey = 'medio'
   if (totals.suave > totals.medio && totals.suave > totals.intenso) winner = 'suave'
   else if (totals.intenso > totals.medio && totals.intenso > totals.suave) winner = 'intenso'

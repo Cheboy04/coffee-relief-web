@@ -55,7 +55,7 @@ export default function HeroTransition({ bagRef, targetRef, settled, product }: 
             {product.name}
           </p>
           <p className="font-sans text-label-md text-white/60 mt-1">
-            Desde ${previewSize.price}
+            ${previewSize.price.toFixed(2)} / {previewSize.label}
           </p>
         </div>
       </div>

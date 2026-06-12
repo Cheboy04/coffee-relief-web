@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 import Button from '@/components/ui/Button'
+import { PRODUCTS } from '@/data/products'
 import QuizQuestion from './QuizQuestion'
 import { useQuizLogic } from './useQuizLogic'
 
@@ -90,9 +91,7 @@ export default function CoffeeQuiz() {
           <div role="status" aria-live="polite" className="mb-6">
             <p className="font-sans text-label-md uppercase text-secondary mb-1">Tu café es</p>
             <p className="font-display text-headline-md text-on-surface">
-              {result.productId === 'valle-chota' && 'Valle del Chota'}
-              {result.productId === 'pichincha-2850' && 'Pichincha 2850'}
-              {result.productId === 'zamora-kraft' && 'Zamora Kraft'}
+              {PRODUCTS.find((p) => p.id === result.productId)?.name ?? result.productId}
             </p>
             <p className="font-sans text-body-md text-on-surface-variant mt-2">
               {result.message}

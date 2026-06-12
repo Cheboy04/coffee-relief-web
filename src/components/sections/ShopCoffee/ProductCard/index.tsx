@@ -4,18 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils/cn'
 import Button from '@/components/ui/Button'
-import SizeSelector from './SizeSelector'
 import type { ProductCardProps } from './types'
 
 export default function ProductCard({ product, isFirst = false }: ProductCardProps) {
-  const [selectedSizeId, setSelectedSizeId] = useState(product.defaultSizeId)
   const [added, setAdded] = useState(false)
+  const size = product.sizes[0]
 
-  const selectedSize = product.sizes.find((s) => s.id === selectedSizeId) ?? product.sizes[0]
-
-  const handleAdd = useCallback(() => {
-    setAdded(true)
-  }, [])
+  const handleAdd = useCallback(() => setAdded(true), [])
 
   useEffect(() => {
     if (!added) return
@@ -65,29 +60,21 @@ export default function ProductCard({ product, isFirst = false }: ProductCardPro
         </div>
 
         <div className="flex flex-col gap-3 mt-auto">
-          <SizeSelector
-            productId={product.id}
-            sizes={product.sizes}
-            selectedId={selectedSizeId}
-            onChange={setSelectedSizeId}
-          />
-
-          <p
-            aria-live="polite"
-            aria-atomic="true"
-            className="font-sans text-headline-sm text-on-surface"
-          >
-            ${selectedSize.price}
+          <p className="font-sans text-headline-sm text-on-surface">
+            ${size.price.toFixed(2)}
+            <span className="font-sans text-label-md text-on-surface-variant ml-2">
+              / {size.label}
+            </span>
           </p>
 
           <Button
             variant="primary"
             size="sm"
-            className={cn('self-start transition-colors', added && 'pointer-events-none')}
+            className={cn('self-start', added && 'pointer-events-none')}
             aria-label={
               added
                 ? `${product.name} agregado`
-                : `Agregar ${product.name} ${selectedSize.label} al carrito`
+                : `Agregar ${product.name} al carrito`
             }
             onClick={handleAdd}
           >
