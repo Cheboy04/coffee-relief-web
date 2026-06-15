@@ -5,7 +5,7 @@ export const NAV_LINKS: NavLinkItem[] = [
   { label: 'Tienda',      href: '/shop' },
   { label: 'Origen',      href: '/about' },
   { label: 'Blog',        href: '/blog' },
-  { label: 'Ubicaciones', href: '/locations' },
+  { label: 'Ubicaciones', href: '#locations' },
 ]
 
 export const NAV_CTA = { label: 'Comprar café', href: '/shop' } as const

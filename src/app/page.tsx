@@ -1,5 +1,6 @@
 import { HeroScroll, TrustBar, OriginStory, ExperienceCards, MenuVisual } from '@/components/sections'
 import ShopCoffee from '@/components/sections/ShopCoffee'
+import Locations from '@/components/sections/Locations'
 
 export default function HomePage() {
   return (
@@ -11,7 +12,7 @@ export default function HomePage() {
       <ExperienceCards />
       <ShopCoffee />
       <MenuVisual />
-      {/* Fase 9: Sustainability + Awards */}
+      <Locations />
     </>
   )
 }

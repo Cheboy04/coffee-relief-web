@@ -74,6 +74,8 @@ SPEC  →  REVIEW  →  BUILD  →  VERIFY
 | React Hook Form | 7.77.0 | pendiente |
 | Zod | 4.4.3 | pendiente |
 | next-intl | 4.13.0 | pendiente — Fase 12 |
+| leaflet | 1.9.4 | ✅ (Fase 11) |
+| @types/leaflet | 1.9.21 | ✅ (Fase 11, dev) |
 
 ### Tailwind v4 — regla crítica
 
@@ -104,11 +106,13 @@ src/
       OriginStory/      ← Fase 5 (ver §10)
       ExperienceCards/  ← Fase 6 (ver §11)
       ShopCoffee/       ← Fase 7 (ver §12)
-      index.ts          ← barrel: HeroScroll, TrustBar, OriginStory, ExperienceCards, ShopCoffee
+      Locations/        ← Fase 11 (ver §12.2)
+      index.ts          ← barrel: HeroScroll, TrustBar, OriginStory, ExperienceCards, ShopCoffee, MenuVisual
     ui/
       Button.tsx        ← Client — 6 variantes, 3 tamaños, polimórfico a/button
       SectionTitle.tsx  ← Server — h1-h4, 3 tamaños, eyebrow, alineación, id opcional
   data/
+    locations.ts        ← LOCATIONS: LocationData[] (2 sedes — coords plausibles, reemplazar antes de deploy)
     navigation.ts       ← NAV_LINKS, NAV_CTA, FOOTER_DATA
     experienceCards.ts  ← EXPERIENCE_CARDS: ExperienceCardData[] (4 cards)
     originStory.ts      ← ORIGIN_BEATS: BeatConfig[]
@@ -179,6 +183,11 @@ max-w-prose     ~680px  ← columnas de texto
 
 ### Utilities de secciones
 ```
+h-locations-map       520px  ← altura mapa desktop — Locations
+h-locations-map-mob   320px  ← altura mapa mobile — Locations
+cr-marker-wrap        24×24px  ← contenedor divIcon Leaflet
+cr-marker-dot         12px dot espresso — marcador inactivo
+cr-marker-dot-active  16px dot + ring secondary/40 — marcador activo
 h-experience-card     520px  ← altura card desktop — ExperienceCards
 h-experience-card-mob 420px  ← altura card mobile — ExperienceCards
 h-beat-track-mob  150vh  ← scroll track por beat (mobile) — OriginStory
@@ -462,6 +471,64 @@ Bebidas frías       (La pausa)    — 3 ítems — grid 3 cols (lg)
 
 ---
 
+## 12.2 Fase 11 — Locations
+
+**Ruta:** `src/components/sections/Locations/`
+
+```
+index.tsx              ← Server — section#locations, heading "Encuéntranos", pasa LOCATIONS a LocationsClient
+LocationsClient.tsx    ← Client — activeId state, lazy-loads LeafletMap via next/dynamic ssr:false
+LocationCard.tsx       ← Client — panel de sede: eyebrow, h3, address, horarios, CTA ghost-light
+LeafletMap.tsx         ← Client — div ref + useLeafletMap hook + import 'leaflet/dist/leaflet.css'
+useLeafletMap.ts       ← Hook — toda lógica Leaflet: L.map(), CartoDB tiles, L.divIcon, flyTo, cleanup
+types.ts               ← LocationData, LeafletMapProps, LocationCardProps, UseLeafletMapReturn
+```
+
+**Datos:** `src/data/locations.ts` — 2 sedes con datos y coordenadas reales ✅
+
+| campo | La Whymper | Tumbaco |
+|---|---|---|
+| `id` | `la-whymper` | `tumbaco` |
+| `name` | La Whymper | Tumbaco |
+| `address` | Whymper 269, Quito 170517 | C. Boyacá y Pje. Santa Rosa 4-01, Quito 170902 |
+| `neighborhood` | La Whymper · cerca a La Floresta | La Morita · Tumbaco |
+| `coords` | `{ lat: -0.1989775, lng: -78.4816834 }` | `{ lat: -0.2130695, lng: -78.3909015 }` |
+| `googleMapsUrl` | `maps.google.com/?q=-0.1989775,-78.4816834` | `maps.google.com/?q=-0.2130695,-78.3909015` |
+
+**Horarios — tipo `LocationHours[]`** (array de filas `{ label, time }` — soporta horarios partidos):
+
+```
+La Whymper:
+  { label: 'Lun–Vie', time: '8:30–20:00' }
+  { label: 'Sábado',  time: '9:30–14:00 · 15:00–19:00' }
+  { label: 'Domingo', time: '10:00–13:00 · 14:00–19:00' }
+
+Tumbaco:
+  { label: 'Lun–Vie', time: '8:00–13:00 · 15:00–20:00' }
+  { label: 'Sáb–Dom', time: '8:30–13:00 · 15:00–20:00' }
+```
+
+**Bug resuelto post-build:** "Map container is already initialized" en dev (React StrictMode monta/desmonta/remonta). Fix: flag `isMounted` sincrónico en `useLeafletMap.ts` — la cleanup lo pone en `false` antes de que el primer `await import('leaflet')` resuelva en el segundo mount.
+
+**Mapa:**
+- Tile: CartoDB Positron (`light_all`) — monocromático, encaja con paleta cream/espresso
+- Vista inicial: `map.fitBounds()` con `padding: [60, 60]` — muestra ambas sedes sin recortar
+- Marcadores: `L.divIcon` custom — dot espresso 12px / 16px activo con ring secondary/40
+- Sin popup — click en marcador → `onMarkerClick(id)` → `setActiveId` → card se resalta + `flyTo`
+- `scrollWheelZoom: false` — nunca atrapa el scroll de página
+
+**Layout:** `bg-primary` (espresso), panel 2/5 izquierda · mapa 3/5 derecha (desktop); mapa arriba · cards abajo (mobile).
+
+**Interacción:** click en card o marcador → `activeId` cambia → card recibe `border-l-secondary` + mapa hace `flyTo(coords, zoom:15)`.
+
+**Accesibilidad:**
+- `role="application"` + `aria-label` en el contenedor del mapa
+- `<noscript>` con `<address>` de cada sede
+- CTA con `target="_blank"` + `rel="noopener noreferrer"` + `aria-label` descriptivo
+- `h2` visible "Encuéntranos" · `h3` por cada sede
+
+---
+
 ## 13. page.tsx — estado actual
 
 ```tsx
@@ -477,7 +544,7 @@ export default function HomePage() {
       <ExperienceCards />      {/* Fase 6 — bg-surface, id="experiencias" */}
       <ShopCoffee />           {/* Fase 7 — bg-surface, id="shop" */}
       <MenuVisual />           {/* Fase 8 — bg-surface-low, id="menu" */}
-      {/* Fase 9: Sustainability + Awards */}
+      <Locations />            {/* Fase 11 — bg-primary, id="locations" */}
     </>
   )
 }
@@ -499,6 +566,7 @@ export default function HomePage() {
 | 7 | ShopCoffee + ProductCard + CoffeeQuiz + HeroTransition | ✅ | ✓ | ✓ | ✓ |
 | 7.1 | Catálogo real (Bold / Tropical / Immersive) + imágenes | ✅ | ✓ | ✓ | ✓ |
 | 8 | MenuVisual (3 categorías · 11 ítems · 100% Server) | ✅ | ✓ | ✓ | ✓ |
+| 11 | Locations (Leaflet · 2 sedes · mapa CartoDB · flyTo) | ✅ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -519,6 +587,8 @@ export default function HomePage() {
 | Canvas vacío sin JavaScript | `<canvas>` sin contenido sin JS | `style={{ backgroundColor }}` + `<noscript>` |
 | OriginStory imágenes 400 | data.ts usaba `.jpg`, archivos son `.jpeg` | data.ts actualizado a `.jpeg` |
 | HeroTransition no mostraba imagen del producto | `targetRef` slot solo usaba `placeholderColor` — `<Image>` nunca se añadió al componente | Añadido `<Image fill object-cover>` condicional en `HeroTransition.tsx`, mismo patrón que `ProductCard` |
+| Leaflet "Map container is already initialized" | React StrictMode monta/desmonta/remonta: la cleanup corre cuando `mapRef` es null (async no resuelto), así el segundo mount también entra al bloque de init | Flag `isMounted` sincrónico en `useLeafletMap.ts` — cleanup lo pone en `false` antes de que el primer `await import('leaflet')` resuelva |
+| `tap` no existe en `MapOptions` de @types/leaflet 1.9 | La opción `tap` fue eliminada en Leaflet 1.9+ | Removida del objeto de opciones del mapa |
 
 ---
 
@@ -547,6 +617,9 @@ export default function HomePage() {
 21. **HeroTransition morph dentro del hero** — no usa getBoundingClientRect cross-section; el morph es narrativa visual contenida en el hero. ShopCoffee es independiente.
 22. **SectionTitle acepta `id` opcional** — para `aria-labelledby` en secciones de conversión con h2 visible
 23. **ShopCoffee h2 visible** — sección de conversión; a diferencia de OriginStory/ExperienceCards que usan sr-only
+24. **`LocationHours[]` en lugar de `{ weekdays, weekends }`** — array de filas `{ label, time }` para soportar horarios partidos (pausa al mediodía) sin cambios de tipo
+25. **Leaflet `isMounted` flag** — único patrón correcto para async effects con librerías imperativas en StrictMode; `mapRef.current` no es suficiente porque puede ser null cuando cleanup corre
+26. **Navbar `#locations`** — anchor directo desde el home, en línea con `#menu`
 
 ---
 
@@ -642,9 +715,9 @@ Fase 6   ✅ ExperienceCards (flip cards × 4 experiencias + imágenes reales)
 Fase 7   ✅ ShopCoffee (ProductCard + CoffeeQuiz + HeroTransition)
 Fase 7.1 ✅ Catálogo real — Bold / Tropical / Immersive + imágenes reales
 Fase 8   ✅ MenuVisual (3 categorías · 11 ítems · 100% Server Components)
-Fase 9      Sustainability + Awards
-Fase 10     Reviews + BlogPreview
-Fase 11     Locations
+Fase 9      Sustainability + Awards (pospuesta)
+Fase 10     Reviews + BlogPreview (pospuesta)
+Fase 11  ✅ Locations (Leaflet · 2 sedes · CartoDB · flyTo)
 Fase 12     i18n (es/en con next-intl)
 Fase 13     Performance audit + accesibilidad
 Fase 14     Deploy a Vercel
@@ -660,8 +733,8 @@ Fase 14     Deploy a Vercel
 3. Ejecutar `pnpm build` — debe pasar limpio
 4. Los prompts de cada fase están en `docs/prompts/`
 
-**Para arrancar Fase 9, decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–8 completadas. Arrancamos la Fase 9 — Sustainability + Awards. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+**Para arrancar Fase 12 (i18n), decirle a Claude:**
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–8 y 11 completadas. Fases 9–10 pospuestas. Arrancamos la Fase 12 — i18n (es/en con next-intl). Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
 **Assets pendientes antes de continuar:**
 - ✅ Frames OriginStory beats 3 y 4 — recibidos y verificados (60 frames cada uno)
@@ -669,5 +742,5 @@ Fase 14     Deploy a Vercel
 
 ---
 
-*Documento actualizado al finalizar la Fase 8 (MenuVisual — sección editorial del menú).*
+*Documento actualizado al finalizar la Fase 11 (Locations — mapa Leaflet + 2 sedes de Quito).*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*

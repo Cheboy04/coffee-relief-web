@@ -305,6 +305,33 @@
 @utility h-experience-card     { height: 520px; }
 @utility h-experience-card-mob { height: 420px; }
 
+/* ─── Locations — mapa Leaflet tokens ───────────────────────────────────────── */
+@utility h-locations-map     { height: 520px; }
+@utility h-locations-map-mob { height: 320px; }
+
+/* Marcadores custom L.divIcon (espresso + roast accent en activo) */
+@utility cr-marker-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-on-primary);
+  transition: width 200ms ease, height 200ms ease, box-shadow 200ms ease;
+}
+@utility cr-marker-dot-active {
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-secondary) 40%, transparent);
+}
+@utility cr-marker-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
 /* ─── Grain background utilities ────────────────────────────────────────────── */
 @utility bg-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
