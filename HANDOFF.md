@@ -672,6 +672,51 @@ const quizText = { q1: { question: t('q1.question'), options: { manana: t('q1.op
 
 ---
 
+## 12.5 Post-deploy — issues de producción (EN CURSO)
+
+> URL de producción: **https://coffee-relief-web.vercel.app/**
+> Env var en Vercel: `NEXT_PUBLIC_SITE_URL=https://coffee-relief-web.vercel.app`
+> Deploy directo a `main` (autorizado por el usuario).
+
+### ✅ RESUELTO — Frames del hero daban 404 (commit `13a0db7`)
+
+- **Causa:** `/public/frames/` estaba en `.gitignore` (plan original: servir por CDN, que nunca se implementó). Los 161 frames WebP (~74MB) nunca se subieron a git → 404 en Vercel. Localmente funcionaba porque estaban en disco.
+- **Fix:** removida la línea `/public/frames/` de `.gitignore`; los 161 frames commiteados. Vercel los sirve como estáticos directos en `/frames/frame_NNNNNN.webp`.
+- **Verificar tras redeploy:** el scrub del hero (desktop) debe funcionar; `https://coffee-relief-web.vercel.app/frames/frame_000000.webp` debe dar 200.
+- **Nota de deuda técnica:** 74MB en el repo. Si pesa, migrar frames a un CDN / Vercel Blob y volver a ignorarlos. Mismo riesgo aplica a cualquier asset pesado que se decida ignorar: **si está en `.gitignore`, NO llega a Vercel.**
+
+### ✅ RESUELTO — Warning `browsing-topics` (commit `13a0db7`)
+
+- `Permissions-Policy` incluía `browsing-topics=()`, feature no reconocida por el navegador → warning en consola. Removida. Header final: `camera=(), microphone=(), geolocation=()`.
+
+### ⏳ PENDIENTE — Imágenes `next/image` cargan intermitente (desktop) / nunca (mobile)
+
+- **Síntoma:** las imágenes de ExperienceCards, ShopCoffee (productos) y MenuVisual cargan "a veces sí, a veces no" en desktop y **no cargan en mobile** (solo el poster del hero). Los archivos **SÍ están en git** (verificado: 269 assets trackeados, solo los 161 frames faltaban).
+- **Hipótesis:** estas imágenes usan `next/image` → optimizador de Vercel (`/_next/image?url=...`). El patrón (desktop intermitente, mobile nunca) apunta a fallo del optimizador, no a archivos faltantes.
+
+- **EVIDENCIA NECESARIA para la próxima sesión** (pedir al usuario, en la URL de prod tras el redeploy de los frames):
+  1. DevTools → Network → filtrar `_next/image` o `image`.
+  2. En una imagen de producto/menú que falle, reportar:
+     - **Código HTTP** de la petición: ¿`404`, `402`, `429`, `500`, `504`?
+     - Si la URL empieza con `/_next/image?url=...` (optimizador) o es ruta directa.
+  3. (Opcional) ¿pasa también en desktop con cache deshabilitado (DevTools → Disable cache)?
+
+- **Diagnóstico según el código HTTP:**
+  | Código | Causa | Fix propuesto |
+  |---|---|---|
+  | `402` / `429` | Cuota de Image Optimization de Vercel (plan Hobby) agotada | `images.unoptimized: true` en `next.config.ts` |
+  | `500` / `504` | Timeout / cold-start del optimizador (source grande) | `images.unoptimized: true` o reducir tamaño de fuentes |
+  | `404` | Ruta/case-sensitivity (Vercel es Linux, case-sensitive) | Revisar nombres de archivo exactos |
+
+- **Fix más probable:** `images.unoptimized: true`. **Todas las imágenes del proyecto ya son WebP pre-dimensionadas**, así que servirlas como estáticas (sin optimizador) elimina el punto de fallo sin penalización real de peso. Aplicar SOLO tras confirmar el código HTTP. Afecta: `next.config.ts` → bloque `images`.
+- **Archivos relevantes:** componentes con `<Image>` → `ExperienceCard.tsx`, `ProductCard/index.tsx`, `MenuItemCard.tsx`, `HeroTransition.tsx`, `HeroCanvas.tsx` (poster), `HeroVideo.tsx` (poster). Config: `next.config.ts`.
+
+### Cómo retomar este issue en sesión nueva
+
+> "Retomamos Coffee Relief Web en producción (https://coffee-relief-web.vercel.app). Lee `HANDOFF.md` §12.5. Los frames del hero ya están resueltos (commit 13a0db7). Falta el issue de `next/image`: te paso el código HTTP de una imagen fallida del Network tab. Diagnostica y aplica el fix (probablemente `images.unoptimized: true`)."
+
+---
+
 ## 13. page.tsx — estado actual (`src/app/[locale]/page.tsx`)
 
 ```tsx
@@ -909,5 +954,6 @@ Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
 
 ---
 
-*Documento actualizado al finalizar la Fase 13+14 (Performance + Accesibilidad + Deploy a Vercel — A11y/BP/SEO 100).*
+*Documento actualizado tras el deploy a producción (Fase 13+14). En producción en https://coffee-relief-web.vercel.app.*
+*Issue abierto: imágenes `next/image` intermitentes — ver §12.5 para la evidencia necesaria y el fix propuesto.*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*
