@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-16 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12
+> Última actualización: 2026-06-17 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14
 
 ---
 
@@ -624,6 +624,54 @@ const quizText = { q1: { question: t('q1.question'), options: { manana: t('q1.op
 
 ---
 
+## 12.4 Fase 13+14 — Performance + Accesibilidad + Deploy
+
+**Metodología:** audit real en browser (Lighthouse + análisis estático de código), priorización P0/P1/P2/P3, corrección con evidencia, re-medición tras cada grupo. Ciclo SDD completo.
+
+### Scores Lighthouse — pre → post
+
+| Métrica | Desktop pre → post | Mobile pre → post |
+|---|---|---|
+| Performance | 81 → 81 | 70 → 77 (aceptable) |
+| Accessibility | 97 → **100** | 97 → **100** |
+| Best Practices | 100 → 100 | 96 → **100** |
+| SEO | 92 → **100** | 92 → **100** |
+| LCP | 0.6s | 3.3s → 2.8s |
+| CLS | 0.168 (P3) | 0 |
+| TBT | 130 → 90ms | 460 → 380ms |
+| React #418 | — | **eliminado** |
+
+### Issues corregidos
+
+| ID | Issue | Causa raíz | Fix |
+|---|---|---|---|
+| B1 | Hydration #418 (solo mobile) | `ExperienceCard` renderizaba el badge "tap" con `{isTouch && …}`. SSR `isTouch=false` (sin badge), primer render mobile `isTouch=true` (con badge) → mismatch | Badge siempre en el DOM (markup determinista) + visibilidad por CSS `@utility touch-only` (`@media (hover: hover)` lo oculta en desktop). `isTouch` se conserva solo para handlers |
+| B2 | `robots.txt` / `sitemap.xml` ausentes | No existían | `src/app/robots.ts` + `src/app/sitemap.ts` (Route Handlers, SSG). Sitemap con `alternates.languages` en/es. robots `Disallow: /tienda` |
+| B4 | Contraste Locations sobre `bg-primary` | `text-secondary` #755a34 / `text-secondary/70` sobre espresso → 2.7:1 y 1.95:1 | `text-secondary-fixed-dim` (#e5c192, ~10:1) en eyebrow de sección, card neighborhood, hoursLabel y días |
+| B5 | Contraste CTA blanco sobre foto + CoffeeQuiz | (1) `card-front-overlay` 0.88 dejaba pasar zonas claras → 3.44:1. (2) Botón "next" deshabilitado con `opacity-50` componía texto #fbf9f9 / fondo #8e857f sobre `bg-surface-low` → 3.44:1 | (1) Gradiente inferior 0.88→0.95. (2) Estado disabled con tokens sólidos `bg-surface-high text-on-surface-variant` (sin opacity) |
+| — | Canonical marcado inválido en Lighthouse | Canonical apuntaba al dominio prod (cross-origin en localhost). El código siempre lo generó correctamente | `.env.local` con `NEXT_PUBLIC_SITE_URL=http://localhost:3000` para test local; en Vercel se define el dominio real |
+| B9 | `images.domains` deprecado (Next 16) | API antigua | `remotePatterns: []` (todo es local) |
+
+### Configuración de deploy
+
+- **`next.config.ts`**: `output` default (server/edge — NO `export`, requerido por middleware+SSG). `remotePatterns: []`. Headers de seguridad: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Strict-Transport-Security` (HSTS, 2 años + preload), `Permissions-Policy` (camera/mic/geo/browsing-topics off). Bundle analyzer cableado (`ANALYZE=true pnpm build`).
+- **`vercel.json`**: `regions: ["gru1"]` (São Paulo — el más cercano a Quito).
+- **Variable de entorno (Vercel)**: `NEXT_PUBLIC_SITE_URL` = dominio real de producción. Única variable requerida. La consumen `metadataBase`, canonical, hreflang y sitemap.
+- **Edge middleware**: next-intl v4 es Edge-compatible (sin módulos Node). Sin cambios.
+- **`/robots.txt` y `/sitemap.xml`**: generados estáticamente vía Route Handlers. Excluidos del middleware por el matcher (`.*\..*` ignora rutas con punto).
+
+### P3 — Backlog post-deploy (documentado, no corregido)
+
+- **CLS 0.168 desktop**: root cause = transición `static→scrub` de `useHeroMode` reflowea el `HeroOverlay` de flujo normal a `absolute` al hidratar (solo desktop; mobile permanece `loop` → CLS 0). Decisión del usuario: aceptar y diferir. Fix futuro: dividir el layout del overlay por `@media` (misma query que `hero-track`) en vez de por estado JS, para que el SSR ya pinte el layout scrub.
+- **LCP mobile (B6)**: el optimizador de `next/image` ya right-size por dispositivo con `sizes="100vw"`; el 2.8s en localhost está inflado por la generación on-demand del optimizador. Verificar en prod (CDN cacheado) antes de optimizar el poster (164KB fuente).
+- **Speed Index 16.7s/29s (B7)**: `HeroCanvas`/OriginStory repintan above-the-fold al cargar frames. Cosmético. Fix futuro: gatear el redibujo. Riesgo alto en código de canvas delicado.
+- **CSP con nonce**: BP ya en 100 sin CSP. Un CSP estricto rompería Leaflet (tiles cartocdn + estilos inline) y GSAP/Framer Motion sin setup de nonce. Implementar con nonce post-deploy.
+- **Bundle treemap**: no medible bajo Turbopack. GSAP y Leaflet ya son dynamic import (verificado en código). Framer Motion está en el bundle inicial (MobileMenu + ExperienceCards). Medir con `next build --webpack` si se quiere lazy-load.
+- **Accesibilidad de marcadores Leaflet por teclado**: alternativa textual `<noscript>` ya existe.
+- **`opengraph-image`**: sin imagen OG/Twitter para social previews (no requerido por SEO).
+
+---
+
 ## 13. page.tsx — estado actual (`src/app/[locale]/page.tsx`)
 
 ```tsx
@@ -666,6 +714,8 @@ export default async function HomePage({ params }) {
 | 8 | MenuVisual (3 categorías · 11 ítems · 100% Server) | ✅ | ✓ | ✓ | ✓ |
 | 11 | Locations (Leaflet · 2 sedes · mapa CartoDB · flyTo) | ✅ | ✓ | ✓ | ✓ |
 | 12 | i18n (next-intl v4 · en/es · SSG · [locale] segment) | ✅ | ✓ | ✓ | ✓ |
+| 13 | Performance + Accesibilidad (audit Lighthouse/axe) | ✅ | ✓ | ✓ | ✓ |
+| 14 | Deploy a Vercel (config + headers + sitemap/robots) | ✅ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -688,6 +738,10 @@ export default async function HomePage({ params }) {
 | HeroTransition no mostraba imagen del producto | `targetRef` slot solo usaba `placeholderColor` — `<Image>` nunca se añadió al componente | Añadido `<Image fill object-cover>` condicional en `HeroTransition.tsx`, mismo patrón que `ProductCard` |
 | Leaflet "Map container is already initialized" | React StrictMode monta/desmonta/remonta: la cleanup corre cuando `mapRef` es null (async no resuelto), así el segundo mount también entra al bloque de init | Flag `isMounted` sincrónico en `useLeafletMap.ts` — cleanup lo pone en `false` antes de que el primer `await import('leaflet')` resuelva |
 | `tap` no existe en `MapOptions` de @types/leaflet 1.9 | La opción `tap` fue eliminada en Leaflet 1.9+ | Removida del objeto de opciones del mapa |
+| Hydration #418 solo en mobile (Fase 13) | `ExperienceCard` renderizaba el badge "tap" con `{isTouch && …}`; SSR `false` / primer render mobile `true` → markup distinto | Badge siempre en DOM + `@utility touch-only` (CSS oculta en desktop) |
+| CLS 0.168 solo desktop (Fase 13) | `useHeroMode` static→scrub reflowea `HeroOverlay` de flujo a `absolute` al hidratar; mobile permanece loop → CLS 0 | Diagnosticado; aceptado como P3 (fix futuro: layout por `@media`, no por estado JS) |
+| Contraste 11 elementos (Fase 13) | `text-secondary` sobre `bg-primary` (2.7/1.95:1); `opacity-50` en botón sobre `bg-surface-low` (3.44:1); overlay 0.88 sobre foto (3.44:1) | `text-secondary-fixed-dim`; disabled con tokens sólidos; overlay 0.88→0.95 |
+| Canonical "inválido" en Lighthouse local (Fase 13) | Canonical apuntaba al dominio prod → cross-origin en localhost | `.env.local` con SITE_URL=localhost para test; dominio real en Vercel |
 
 ---
 
@@ -725,6 +779,10 @@ export default async function HomePage({ params }) {
 30. **i18n: datos sin texto** — `locations.ts`, `questions.ts`, `messages.ts` del hero solo tienen estructura/IDs/coords/scores. Todo texto en `messages/[locale].json`.
 31. **Navbar frosted glass post-hero** — CSS-driven via `html.navbar-scrolled`. Default (sin clase) es transparente: correcto para SSR sin flash. El glass crea su propio panel visual crema, haciendo el texto oscuro legible sobre cualquier fondo de sección (incluyendo Locations `bg-primary` y ExperienceCards dark). No usar `bg-surface` sólido.
 32. **Links single-landing** — mientras solo existe el home, todos los links de Navbar y Footer apuntan a anclas `#section`. Rutas `/about` y `/blog` en Navbar se dejan apuntando a sus rutas futuras. Social links del Footer pendientes de URLs reales del cliente. Legal (`#privacy`, `#terms`) son placeholders.
+33. **Markup determinista para detección touch** — todo lo que dependa de `matchMedia`/device en el *render* debe estar siempre en el DOM y controlarse por CSS (`@utility touch-only`), no por `{cond && <jsx>}`. El estado JS solo puede gatear *handlers/comportamiento* (no afectan la hidratación). Revierte parcialmente la decisión #15 solo para markup.
+34. **Deshabilitado sin `opacity`** — los estados disabled que deban pasar contraste WCAG usan tokens sólidos (`bg-surface-high text-on-surface-variant`), nunca `opacity-50` (compone el color de fondo y baja el ratio bajo 4.5:1).
+35. **Output mode Vercel: default (server/edge)** — NO `output: 'export'`. El middleware de next-intl + SSG requieren runtime. `regions: ["gru1"]` (São Paulo) por cercanía a Quito. Headers de seguridad en `next.config.ts` (Vercel los respeta). CSP diferido a P3 (riesgo con Leaflet sin nonce).
+36. **`NEXT_PUBLIC_SITE_URL` única env var** — controla `metadataBase`/canonical/hreflang/sitemap. `.env.local` (gitignored) para test local; valor de producción en el dashboard de Vercel.
 
 ---
 
@@ -824,8 +882,8 @@ Fase 9      Sustainability + Awards (pospuesta)
 Fase 10     Reviews + BlogPreview (pospuesta)
 Fase 11  ✅ Locations (Leaflet · 2 sedes · CartoDB · flyTo)
 Fase 12  ✅ i18n (next-intl v4 · en/es · SSG · [locale] segment · LanguageSwitcher)
-Fase 13     Performance audit + accesibilidad
-Fase 14     Deploy a Vercel
+Fase 13  ✅ Performance audit + accesibilidad (Lighthouse A11y/BP/SEO → 100)
+Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
 —           /tienda (catálogo completo) — pendiente sin número de fase asignado
 ```
 
@@ -851,5 +909,5 @@ Fase 14     Deploy a Vercel
 
 ---
 
-*Documento actualizado al finalizar la Fase 11 (Locations — mapa Leaflet + 2 sedes de Quito).*
+*Documento actualizado al finalizar la Fase 13+14 (Performance + Accesibilidad + Deploy a Vercel — A11y/BP/SEO 100).*
 *Repo: https://github.com/Cheboy04/coffee-relief-web*

@@ -293,10 +293,12 @@
   transform: rotateY(180deg);
 }
 @utility card-front-overlay {
+  /* Zona inferior más opaca → garantiza contraste ≥4.5:1 del título y el CTA
+     blancos sobre cualquier foto (antes 0.88 dejaba pasar zonas claras → 3.44:1). */
   background: linear-gradient(
     to top,
-    rgba(38, 23, 12, 0.88) 0%,
-    rgba(38, 23, 12, 0.35) 55%,
+    rgba(38, 23, 12, 0.95) 0%,
+    rgba(38, 23, 12, 0.45) 50%,
     transparent 100%
   );
 }
@@ -304,6 +306,15 @@
 /* ─── ExperienceCards — card height tokens ───────────────────────────────────── */
 @utility h-experience-card     { height: 520px; }
 @utility h-experience-card-mob { height: 420px; }
+
+/* Visibilidad solo-touch — markup determinista (SSR == cliente) para evitar
+   hydration mismatch. El badge se renderiza siempre; se oculta por CSS en
+   dispositivos con puntero fino (desktop). */
+@utility touch-only {
+  @media (hover: hover) and (pointer: fine) {
+    display: none;
+  }
+}
 
 /* ─── Locations — mapa Leaflet tokens ───────────────────────────────────────── */
 @utility h-locations-map     { height: 520px; }
@@ -357,6 +368,9 @@
 
   html {
     scroll-behavior: smooth;
+    /* Reserva el ancho de la scrollbar siempre → evita el reflow horizontal
+       (CLS) cuando la barra aparece en desktop. */
+    scrollbar-gutter: stable;
   }
 
   body {

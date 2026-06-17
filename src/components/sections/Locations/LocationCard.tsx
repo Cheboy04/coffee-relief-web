@@ -23,7 +23,7 @@ export default function LocationCard({ location, isActive, onClick }: LocationCa
         className="w-full text-left group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary rounded"
         aria-pressed={isActive}
       >
-        <p className="text-label-md uppercase text-secondary">
+        <p className="text-label-md uppercase text-secondary-fixed-dim">
           {t(`venues.${location.id as VenueId}.neighborhood`)}
         </p>
         <h3
@@ -39,10 +39,10 @@ export default function LocationCard({ location, isActive, onClick }: LocationCa
       </address>
 
       <div className="mt-4 space-y-2">
-        <p className="text-label-md uppercase text-secondary">{t('hoursLabel')}</p>
+        <p className="text-label-md uppercase text-secondary-fixed-dim">{t('hoursLabel')}</p>
         {location.hours.map((h) => (
           <div key={h.hoursKey} className="flex gap-3 items-baseline">
-            <span className="text-label-md text-secondary/70 w-16 shrink-0">
+            <span className="text-label-md text-secondary-fixed-dim w-16 shrink-0">
               {t(`days.${h.hoursKey as HoursKey}`)}
             </span>
             <span className="text-body-md text-on-primary/70">{h.time}</span>

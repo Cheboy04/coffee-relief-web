@@ -121,22 +121,23 @@ export default function ExperienceCard({ data }: ExperienceCardProps) {
             </Button>
           </div>
 
-          {/* Tap hint — touch only, fades out after first flip */}
-          {isTouch && (
-            <div
-              aria-hidden="true"
-              className={cn(
-                'absolute top-4 right-4 z-raised',
-                'flex items-center justify-center w-9 h-9',
-                'rounded-full bg-white/20 backdrop-blur-sm',
-                'transition-opacity duration-300',
-                !prefersReducedMotion && 'animate-hint-pulse',
-                hasFlippedOnce && 'opacity-0 pointer-events-none',
-              )}
-            >
-              <FlipHintIcon />
-            </div>
-          )}
+          {/* Tap hint — touch only, fades out after first flip.
+              Markup determinista (siempre en el DOM) + visibilidad por CSS
+              (touch-only) para no romper la hidratación en móvil. */}
+          <div
+            aria-hidden="true"
+            className={cn(
+              'touch-only',
+              'absolute top-4 right-4 z-raised',
+              'flex items-center justify-center w-9 h-9',
+              'rounded-full bg-white/20 backdrop-blur-sm',
+              'transition-opacity duration-300',
+              !prefersReducedMotion && 'animate-hint-pulse',
+              hasFlippedOnce && 'opacity-0 pointer-events-none',
+            )}
+          >
+            <FlipHintIcon />
+          </div>
         </div>
 
         {/* ── Back face ──────────────────────────────────────────────────── */}

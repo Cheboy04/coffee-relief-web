@@ -124,7 +124,9 @@ export default function CoffeeQuiz() {
               variant="primary"
               size="sm"
               onClick={next}
-              className={cn(!currentAnswer && 'opacity-50 pointer-events-none')}
+              // Deshabilitado: tokens sólidos (no opacity) → mantiene contraste ≥4.5:1.
+              // opacity-50 sobre bg-surface-low componía 3.44:1 (texto #fbf9f9 / fondo #8e857f).
+              className={cn(!currentAnswer && 'pointer-events-none bg-surface-high text-on-surface-variant')}
               aria-disabled={!currentAnswer}
             >
               {isLastStep ? t('recommend') : t('next')}

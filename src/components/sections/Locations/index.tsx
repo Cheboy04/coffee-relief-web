@@ -13,7 +13,7 @@ export default async function Locations() {
     >
       <div className="max-w-content mx-auto">
         <div className="flex flex-col gap-3">
-          <span className="font-sans text-label-md uppercase text-secondary">
+          <span className="font-sans text-label-md uppercase text-secondary-fixed-dim">
             {t('eyebrow')}
           </span>
           <h2
