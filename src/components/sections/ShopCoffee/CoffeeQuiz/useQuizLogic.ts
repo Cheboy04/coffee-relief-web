@@ -4,12 +4,6 @@ import { useState, useCallback } from 'react'
 import { QUIZ_QUESTIONS } from './questions'
 import type { QuizResult, IntensityKey } from './types'
 
-const RESULT_MESSAGES: Record<string, string> = {
-  'bold':      'Profundo, persistente y sin rodeos — el café para los que saben lo que quieren.',
-  'immersive': 'Suave, equilibrado y sin sorpresas — el café que te acompaña cada día.',
-  'tropical':  'Brillante, frutal y lleno de vida — el café para quienes buscan algo diferente.',
-}
-
 const INTENSITY_TO_PRODUCT: Record<IntensityKey, string> = {
   suave:   'tropical',
   medio:   'immersive',
@@ -29,13 +23,12 @@ function computeResult(answers: Record<string, string>): QuizResult {
     totals.intenso += option.scores.intenso
   }
 
-  // Empate → medio siempre gana (Immersive Relief)
+  // Tie → medio always wins (Immersive Relief)
   let winner: IntensityKey = 'medio'
   if (totals.suave > totals.medio && totals.suave > totals.intenso) winner = 'suave'
   else if (totals.intenso > totals.medio && totals.intenso > totals.suave) winner = 'intenso'
 
-  const productId = INTENSITY_TO_PRODUCT[winner]
-  return { productId, message: RESULT_MESSAGES[productId] ?? '' }
+  return { productId: INTENSITY_TO_PRODUCT[winner] }
 }
 
 export function useQuizLogic() {

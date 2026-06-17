@@ -1,10 +1,10 @@
 'use client'
 
 import { cn } from '@/lib/utils/cn'
-import type { QuizQuestion as QuizQuestionType } from './types'
+import type { TranslatedQuizQuestion } from './types'
 
 interface QuizQuestionProps {
-  question: QuizQuestionType
+  question: TranslatedQuizQuestion
   selectedOptionId: string | undefined
   onSelect: (optionId: string) => void
 }

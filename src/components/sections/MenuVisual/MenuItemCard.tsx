@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import { cn } from '@/lib/utils/cn'
 import type { MenuItem, MenuItemTag } from './types'
@@ -13,13 +14,9 @@ const tagClasses: Record<MenuItemTag, string> = {
   'sin-gluten': 'bg-surface-high text-on-surface-variant',
 }
 
-const tagLabels: Record<MenuItemTag, string> = {
-  signature:   'Signature',
-  vegano:      'Vegano',
-  'sin-gluten': 'Sin gluten',
-}
+export default async function MenuItemCard({ item, delay }: MenuItemCardProps) {
+  const t = await getTranslations('menu')
 
-export default function MenuItemCard({ item, delay }: MenuItemCardProps) {
   return (
     <article
       className="animate-fade-up"
@@ -50,7 +47,7 @@ export default function MenuItemCard({ item, delay }: MenuItemCardProps) {
               tagClasses[item.tag]
             )}
           >
-            {tagLabels[item.tag]}
+            {t(`tags.${item.tag as 'signature' | 'vegano' | 'sin-gluten'}`)}
           </span>
         )}
       </div>

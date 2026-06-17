@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Button from '@/components/ui/Button'
+import LanguageSwitcher from '../LanguageSwitcher'
 import { cn } from '@/lib/utils/cn'
 import type { MobileMenuProps } from '../types'
 
@@ -74,6 +76,7 @@ function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
 }
 
 export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps) {
+  const t = useTranslations('nav')
   const [isOpen, setIsOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef   = useRef<HTMLDivElement>(null)
@@ -172,7 +175,7 @@ export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps
         )}
         aria-expanded={isOpen}
         aria-controls="mobile-nav-menu"
-        aria-label={isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+        aria-label={isOpen ? t('closeMenu') : t('openMenu')}
       >
         <HamburgerIcon isOpen={isOpen} />
       </button>
@@ -201,7 +204,7 @@ export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps
               id="mobile-nav-menu"
               role="dialog"
               aria-modal="true"
-              aria-label="Menú de navegación móvil"
+              aria-label={t('mobileMenuLabel')}
               variants={overlayVariants}
               initial="closed"
               animate="open"
@@ -216,7 +219,7 @@ export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps
                   type="button"
                   onClick={close}
                   className="flex items-center justify-center w-10 h-10 text-on-surface rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:opacity-60 transition-opacity"
-                  aria-label="Cerrar menú"
+                  aria-label={t('closeMenuShort')}
                 >
                   <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
                     <line x1={6}  y1={6}  x2={18} y2={18} />
@@ -226,7 +229,7 @@ export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps
               </div>
 
               {/* Nav links */}
-              <nav aria-label="Navegación móvil">
+              <nav aria-label={t('mobileMenuLabel')}>
                 <ul role="list" className="flex flex-col px-5 pb-6 list-none">
                   {links.map((link, i) => (
                     <motion.li
@@ -247,7 +250,10 @@ export default function MobileMenu({ links, ctaLabel, ctaHref }: MobileMenuProps
                 </ul>
               </nav>
 
-              {/* CTA */}
+              {/* Language switcher + CTA */}
+              <div className="px-5 pb-4">
+                <LanguageSwitcher />
+              </div>
               <div className="px-5 pb-8">
                 <Button
                   href={ctaHref}

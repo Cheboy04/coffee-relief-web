@@ -10,7 +10,6 @@ import { PRODUCTS } from '@/data/products'
 import { useHeroMode } from './useHeroMode'
 import { useHeroScrub } from './useHeroScrub'
 import { useHeroTransition } from './useHeroTransition'
-import { OVERLAY_MESSAGES } from './messages'
 import type { HeroScrollProps } from './types'
 
 /**
@@ -24,6 +23,8 @@ import type { HeroScrollProps } from './types'
  * El color del Navbar se coordina via --navbar-fg-color sin tocar el componente Navbar.
  */
 export default function HeroScroll({
+  overlayMessages = [],
+  ariaLabel,
   videoSrc = '/video/hero.mp4',
   posterSrc = '/images/hero/hero-poster.webp',
   frameDir = '/frames',
@@ -99,7 +100,7 @@ export default function HeroScroll({
     overlayRefs,
     bagRef,
     targetRef,
-    messages: OVERLAY_MESSAGES,
+    messages: overlayMessages,
     enabled: mode === 'scrub',
     onProgress: setProgress,
     onFrame: handleFrame,
@@ -112,7 +113,7 @@ export default function HeroScroll({
     <section
       ref={sectionRef}
       className={cn('hero-track relative w-full', className)}
-      aria-label="Coffee Relief — historia de origen"
+      aria-label={ariaLabel}
     >
       <div className="sticky top-0 h-screen w-full">
         <div className="relative h-full w-full overflow-hidden">
@@ -134,7 +135,7 @@ export default function HeroScroll({
           )}
           <HeroOverlay
             overlayRefs={overlayRefs}
-            messages={OVERLAY_MESSAGES}
+            messages={overlayMessages}
             mode={mode}
             shopAnchorId={shopAnchorId}
           />

@@ -1,7 +1,8 @@
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import FooterLinks from './FooterLinks'
 import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons'
-import type { FooterProps, SocialLink } from '../types'
+import type { FooterLinkGroup, SocialLink } from '../types'
 
 function SocialIcon({ link }: { link: SocialLink }) {
   const icons = {
@@ -23,13 +24,45 @@ function SocialIcon({ link }: { link: SocialLink }) {
   )
 }
 
-export default function Footer({ linkGroups, socialLinks, legalLinks }: FooterProps) {
+export default async function Footer() {
+  const t = await getTranslations('footer')
   const year = new Date().getFullYear()
+
+  const linkGroups: FooterLinkGroup[] = [
+    {
+      title: t('groups.explore.title'),
+      links: [
+        { label: t('groups.explore.menu'),  href: '/menu' },
+        { label: t('groups.explore.shop'),  href: '/shop' },
+        { label: t('groups.explore.blog'),  href: '/blog' },
+      ],
+    },
+    {
+      title: t('groups.brand.title'),
+      links: [
+        { label: t('groups.brand.origin'),         href: '/about' },
+        { label: t('groups.brand.sustainability'),  href: '/about#sustainability' },
+        { label: t('groups.brand.awards'),          href: '/about#awards' },
+        { label: t('groups.brand.locations'),       href: '/locations' },
+      ],
+    },
+  ]
+
+  const socialLinks: SocialLink[] = [
+    { platform: 'instagram', href: 'https://instagram.com/coffeerelief', label: t('social.instagram') },
+    { platform: 'tiktok',    href: 'https://tiktok.com/@coffeerelief',   label: t('social.tiktok') },
+    { platform: 'facebook',  href: 'https://facebook.com/coffeerelief',  label: t('social.facebook') },
+  ]
+
+  const legalLinks = [
+    { label: t('legal.privacy'), href: '/privacidad' },
+    { label: t('legal.terms'),   href: '/terminos' },
+  ]
 
   return (
     <footer
       className="bg-primary bg-grain-subtle"
-      aria-label="Pie de página de Coffee Relief"
+      aria-label={t('ariaLabel')}
     >
       {/* Main grid */}
       <div className="max-w-[1280px] mx-auto px-5 md:px-16 pt-16 pb-10">
@@ -39,14 +72,13 @@ export default function Footer({ linkGroups, socialLinks, legalLinks }: FooterPr
           <div className="flex flex-col gap-6">
             <Link
               href="/"
-              aria-label="Coffee Relief — página de inicio"
+              aria-label={t('ariaLabel')}
               className="font-display text-headline-sm text-white hover:opacity-70 transition-opacity duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-fixed w-fit"
             >
               Coffee Relief
             </Link>
             <p className="font-sans text-body-md text-white/60 max-w-[300px] leading-relaxed">
-              Café de especialidad ecuatoriano tostado en origen.
-              Comercio directo, sostenible y con reconocimiento internacional.
+              {t('tagline')}
             </p>
             {/* Social icons */}
             <div className="flex gap-1 -ml-2">
@@ -67,7 +99,7 @@ export default function Footer({ linkGroups, socialLinks, legalLinks }: FooterPr
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-5 md:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-sans text-caption text-white/40">
-            © {year} Coffee Relief. Todos los derechos reservados.
+            © {year} Coffee Relief. {t('copyright')}
           </p>
           <ul role="list" className="flex gap-6 list-none">
             {legalLinks.map((link) => (

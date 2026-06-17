@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-12 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1
+> Última actualización: 2026-06-15 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12
 
 ---
 
@@ -73,7 +73,7 @@ SPEC  →  REVIEW  →  BUILD  →  VERIFY
 | Zustand | 5.0.14 | pendiente |
 | React Hook Form | 7.77.0 | pendiente |
 | Zod | 4.4.3 | pendiente |
-| next-intl | 4.13.0 | pendiente — Fase 12 |
+| next-intl | 4.13.0 | ✅ en uso (Fase 12) |
 | leaflet | 1.9.4 | ✅ (Fase 11) |
 | @types/leaflet | 1.9.21 | ✅ (Fase 11, dev) |
 
@@ -91,12 +91,17 @@ SPEC  →  REVIEW  →  BUILD  →  VERIFY
 ```
 src/
   app/
-    layout.tsx          ← root layout: fuentes, Navbar, Footer, skip nav
-    page.tsx            ← home page (todas las secciones Fase 0-7)
+    [[...locale]]/      ← catch-all opcional i18n — / (en) y /es (Fase 12)
+      layout.tsx        ← root layout: fuentes, Navbar, Footer, NextIntlClientProvider, skip nav
+      page.tsx          ← home page (todas las secciones) + getTranslations para HeroScroll
     globals.css         ← TODA la config Tailwind v4 + base styles + tokens
+  i18n/
+    routing.ts          ← defineRouting: locales ['en','es'], defaultLocale 'en', localePrefix 'as-needed'
+    request.ts          ← getRequestConfig: carga messages/[locale].json
+    navigation.ts       ← createNavigation(routing): Link, useRouter, usePathname, redirect
   components/
     layout/
-      Navbar/           ← index.tsx (Server) + NavLinks.tsx (Server) + MobileMenu.tsx (Client)
+      Navbar/           ← index.tsx (Server) + NavLinks.tsx (Server) + MobileMenu.tsx (Client) + LanguageSwitcher.tsx (Client)
       Footer/           ← index.tsx (Server) + FooterLinks.tsx (Server) + icons.tsx
       types.ts          ← NavLinkItem, NavbarProps, FooterProps, etc.
       index.ts          ← barrel
@@ -112,13 +117,19 @@ src/
       Button.tsx        ← Client — 6 variantes, 3 tamaños, polimórfico a/button
       SectionTitle.tsx  ← Server — h1-h4, 3 tamaños, eyebrow, alineación, id opcional
   data/
-    locations.ts        ← LOCATIONS: LocationData[] (2 sedes — coords plausibles, reemplazar antes de deploy)
-    navigation.ts       ← NAV_LINKS, NAV_CTA, FOOTER_DATA
-    experienceCards.ts  ← EXPERIENCE_CARDS: ExperienceCardData[] (4 cards)
-    originStory.ts      ← ORIGIN_BEATS: BeatConfig[]
-    products.ts         ← PRODUCTS: Product[] (3 productos — ver §12)
+    locations.ts        ← LOCATIONS: LocationData[] (sin neighborhood/label — en messages)
+    navigation.ts       ← NAV_LINKS (sin labels — ahora en messages/[locale].json nav namespace)
+    experienceCards.ts  ← EXPERIENCE_CARDS: ExperienceCardData[] (sin texto — en messages)
+    originStory.ts      ← ORIGIN_BEATS: BeatConfig[] (sin texto — en messages)
+    products.ts         ← PRODUCTS: Product[] (3 productos — imageAlt/flavorNotes vienen de messages)
   lib/utils/cn.ts       ← clsx + twMerge helper
   types/index.ts        ← Product, ProductSize, Review, Location, Award
+
+messages/
+  en.json               ← todas las cadenas EN (nav, hero, shop, quiz, menu, locations, etc.)
+  es.json               ← todas las cadenas ES
+
+middleware.ts           ← next-intl middleware (raíz del proyecto)
 
 public/
   frames/               ← hero canvas scrub (161 frames WebP, frame_000000.webp)
@@ -495,18 +506,21 @@ types.ts               ← LocationData, LeafletMapProps, LocationCardProps, Use
 | `coords` | `{ lat: -0.1989775, lng: -78.4816834 }` | `{ lat: -0.2130695, lng: -78.3909015 }` |
 | `googleMapsUrl` | `maps.google.com/?q=-0.1989775,-78.4816834` | `maps.google.com/?q=-0.2130695,-78.3909015` |
 
-**Horarios — tipo `LocationHours[]`** (array de filas `{ label, time }` — soporta horarios partidos):
+**Horarios — tipo `LocationHours[]`** (array de filas `{ hoursKey, time }` — soporta horarios partidos, texto en messages):
 
 ```
 La Whymper:
-  { label: 'Lun–Vie', time: '8:30–20:00' }
-  { label: 'Sábado',  time: '9:30–14:00 · 15:00–19:00' }
-  { label: 'Domingo', time: '10:00–13:00 · 14:00–19:00' }
+  { hoursKey: 'monFri',   time: '8:30–20:00' }
+  { hoursKey: 'saturday', time: '9:30–14:00 · 15:00–19:00' }
+  { hoursKey: 'sunday',   time: '10:00–13:00 · 14:00–19:00' }
 
 Tumbaco:
-  { label: 'Lun–Vie', time: '8:00–13:00 · 15:00–20:00' }
-  { label: 'Sáb–Dom', time: '8:30–13:00 · 15:00–20:00' }
+  { hoursKey: 'monFri', time: '8:00–13:00 · 15:00–20:00' }
+  { hoursKey: 'satSun', time: '8:30–13:00 · 15:00–20:00' }
 ```
+Claves de días en `messages/[locale].json` → `locations.days.{monFri|saturday|sunday|satSun}`
+
+`neighborhood` removido de `LocationData` — ahora en `messages.[locale].locations.venues.{id}.neighborhood`
 
 **Bug resuelto post-build:** "Map container is already initialized" en dev (React StrictMode monta/desmonta/remonta). Fix: flag `isMounted` sincrónico en `useLeafletMap.ts` — la cleanup lo pone en `false` antes de que el primer `await import('leaflet')` resuelva en el segundo mount.
 
@@ -529,22 +543,105 @@ Tumbaco:
 
 ---
 
-## 13. page.tsx — estado actual
+## 12.3 Fase 12 — i18n (next-intl v4)
+
+**Arquitectura:**
+- `localePrefix: 'as-needed'` — EN sin prefijo (`/`), ES con prefijo (`/es`)
+- Middleware reescribe todas las rutas a `[locale]` internamente
+- SSG: `generateStaticParams` en layout Y page → pre-genera `/en` y `/es`
+- `setRequestLocale(locale)` en layout Y page → SSG mantenido con Server Components async
+
+**Archivos nuevos:**
+```
+src/i18n/routing.ts      ← defineRouting({ locales: ['en','es'], defaultLocale: 'en', localePrefix: 'as-needed' })
+src/i18n/request.ts      ← getRequestConfig: carga messages/[locale].json
+src/i18n/navigation.ts   ← createNavigation(routing): Link, useRouter, usePathname, redirect
+middleware.ts             ← next-intl middleware (raíz del proyecto)
+messages/en.json          ← todas las cadenas EN
+messages/es.json          ← todas las cadenas ES
+src/app/[[...locale]]/layout.tsx  ← root layout con NextIntlClientProvider (catch-all opcional)
+src/app/[[...locale]]/page.tsx    ← home page async con getTranslations('hero')
+```
+
+**⚠️ Trampa crítica — `[[...locale]]` vs `[locale]`:**
+```
+localePrefix: 'as-needed' + [locale]         → / da 404 ← INCORRECTO
+localePrefix: 'as-needed' + [[...locale]]    → / funciona ← CORRECTO
+localePrefix: 'always'    + [locale]         → / redirige a /en ← alternativa válida
+```
+Con `[[...locale]]`, params es `{ locale?: string[] }`:
+- `/`  → `locale = undefined` → `locale = defaultLocale = 'en'`
+- `/es` → `locale = ['es']` → `locale = 'es'`
+
+`generateStaticParams`: `[{ locale: [] }, { locale: ['es'] }]`
+
+```
+src/components/layout/LanguageSwitcher.tsx  ← EN | ES via router.replace(pathname, { locale })
+```
+
+**Patrón Server Component:**
+```typescript
+const t = await getTranslations('namespace')   // getTranslations de 'next-intl/server'
+```
+
+**Patrón Client Component:**
+```typescript
+const t = useTranslations('namespace')          // useTranslations de 'next-intl'
+```
+
+**Patrón HeroScroll (Client que necesita texto traducido):**
+```typescript
+// page.tsx (Server) construye overlayMessages y los pasa como prop
+const overlayMessages = OVERLAY_STRUCTURE.map((s, i) => ({ ...s, headline: t(...), subline: t(...) }))
+<HeroScroll overlayMessages={overlayMessages} ariaLabel={t('ariaLabel')} />
+```
+
+**Namespaces de mensajes:**
+| namespace | secciones |
+|---|---|
+| `meta` | título, description |
+| `nav` | links, CTA, aria-labels, skip-to-content |
+| `footer` | tagline, copyright, grupos, legal, social |
+| `hero` | ariaLabel + 3 beats (headline/subline/cta) |
+| `trustBar` | 5 items (volcanic/producer/roasted/shipping/eco) |
+| `originStory` | sectionLabel + 4 beats (eyebrow/headline/body/imageAlt) |
+| `experienceCards` | sectionLabel + 4 cards (title/eyebrow/summary/imageAlt/ctaFront/ctaBack) |
+| `shop` | heading/eyebrow/cta/addCta/addedCta + 3 productos (intensity/origin/flavorNotes/description/imageAlt) |
+| `quiz` | eyebrow/heading/step/back/next/recommend/retry/resultLabel + 3q + 3 results |
+| `menu` | eyebrow/heading/cta + 3 categorías + 11 ítems + 3 tags |
+| `locations` | eyebrow/heading/hoursLabel/directionsLabel + days + 2 venues neighborhoods |
+| `common` | openInNewTab |
+
+**Regla TypeScript para claves dinámicas:**
+```typescript
+// ✅ Tipo literal union para satisfacer next-intl key inference
+t(`products.${p.id as 'bold' | 'tropical' | 'immersive'}.imageAlt`)
+
+// ✅ Para arrays de claves explícitas
+const quizText = { q1: { question: t('q1.question'), options: { manana: t('q1.options.manana'), ... } } }
+```
+
+---
+
+## 13. page.tsx — estado actual (`src/app/[locale]/page.tsx`)
 
 ```tsx
-import { HeroScroll, TrustBar, OriginStory, ExperienceCards, MenuVisual } from '@/components/sections'
-import ShopCoffee from '@/components/sections/ShopCoffee'
-
-export default function HomePage() {
+// Server Component — async — recibe params.locale
+// Llama getTranslations('hero'), construye overlayMessages, pasa a HeroScroll como prop
+export default async function HomePage({ params }) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('hero')
+  // overlayMessages: OverlayMessage[] mergeado de OVERLAY_STRUCTURE + traducciones
   return (
     <>
-      <HeroScroll />           {/* Fase 3 — full-bleed, sin pt-navbar */}
-      <TrustBar />             {/* Fase 4 — bg-surface-low */}
-      <OriginStory />          {/* Fase 5 — bg-surface, id="origin" */}
-      <ExperienceCards />      {/* Fase 6 — bg-surface, id="experiencias" */}
-      <ShopCoffee />           {/* Fase 7 — bg-surface, id="shop" */}
-      <MenuVisual />           {/* Fase 8 — bg-surface-low, id="menu" */}
-      <Locations />            {/* Fase 11 — bg-primary, id="locations" */}
+      <HeroScroll overlayMessages={overlayMessages} ariaLabel={t('ariaLabel')} />
+      <TrustBar />             {/* Server async — getTranslations('trustBar') */}
+      <OriginStory />          {/* Server async — getTranslations('originStory') */}
+      <ExperienceCards />      {/* Server async — getTranslations('experienceCards') */}
+      <ShopCoffee />           {/* Server async — getTranslations('shop') */}
+      <MenuVisual />           {/* Server async — getTranslations('menu') */}
+      <Locations />            {/* Server async — getTranslations('locations') */}
     </>
   )
 }
@@ -567,6 +664,7 @@ export default function HomePage() {
 | 7.1 | Catálogo real (Bold / Tropical / Immersive) + imágenes | ✅ | ✓ | ✓ | ✓ |
 | 8 | MenuVisual (3 categorías · 11 ítems · 100% Server) | ✅ | ✓ | ✓ | ✓ |
 | 11 | Locations (Leaflet · 2 sedes · mapa CartoDB · flyTo) | ✅ | ✓ | ✓ | ✓ |
+| 12 | i18n (next-intl v4 · en/es · SSG · [locale] segment) | ✅ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -620,6 +718,10 @@ export default function HomePage() {
 24. **`LocationHours[]` en lugar de `{ weekdays, weekends }`** — array de filas `{ label, time }` para soportar horarios partidos (pausa al mediodía) sin cambios de tipo
 25. **Leaflet `isMounted` flag** — único patrón correcto para async effects con librerías imperativas en StrictMode; `mapRef.current` no es suficiente porque puede ser null cuando cleanup corre
 26. **Navbar `#locations`** — anchor directo desde el home, en línea con `#menu`
+27. **i18n: `localePrefix: 'as-needed'` requiere `[[...locale]]`** — Con `[locale]` (required), `/` da 404 porque no hay locale en la URL. Con `[[...locale]]` (catch-all opcional), `/` captura locale vacío → `defaultLocale = 'en'`. ES tiene prefijo (`/es`).
+28. **i18n: SSG mantenido** — `setRequestLocale` en layout Y page. `generateStaticParams` genera `{ locale: [] }` para `/` y `{ locale: ['es'] }` para `/es`.
+29. **i18n: Server Components llaman `getTranslations()`** — Client Components usan `useTranslations()`. HeroScroll es Client → page.tsx (Server) le pasa `overlayMessages` como prop.
+30. **i18n: datos sin texto** — `locations.ts`, `questions.ts`, `messages.ts` del hero solo tienen estructura/IDs/coords/scores. Todo texto en `messages/[locale].json`.
 
 ---
 
@@ -718,7 +820,7 @@ Fase 8   ✅ MenuVisual (3 categorías · 11 ítems · 100% Server Components)
 Fase 9      Sustainability + Awards (pospuesta)
 Fase 10     Reviews + BlogPreview (pospuesta)
 Fase 11  ✅ Locations (Leaflet · 2 sedes · CartoDB · flyTo)
-Fase 12     i18n (es/en con next-intl)
+Fase 12  ✅ i18n (next-intl v4 · en/es · SSG · [locale] segment · LanguageSwitcher)
 Fase 13     Performance audit + accesibilidad
 Fase 14     Deploy a Vercel
 —           /tienda (catálogo completo) — pendiente sin número de fase asignado
@@ -733,12 +835,16 @@ Fase 14     Deploy a Vercel
 3. Ejecutar `pnpm build` — debe pasar limpio
 4. Los prompts de cada fase están en `docs/prompts/`
 
-**Para arrancar Fase 12 (i18n), decirle a Claude:**
-> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–8 y 11 completadas. Fases 9–10 pospuestas. Arrancamos la Fase 12 — i18n (es/en con next-intl). Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
+**Para arrancar Fase 13 (Performance + Accesibilidad), decirle a Claude:**
+> "Retomamos Coffee Relief Web. Lee el `HANDOFF.md` y `docs/DESIGN.md`. Fases 0–8, 11 y 12 completadas. Fases 9–10 pospuestas. Arrancamos la Fase 13 — Performance audit + accesibilidad. Ciclo SDD obligatorio: SPEC → aprobación → BUILD → VERIFY. Empieza con la SPEC completa."
 
-**Assets pendientes antes de continuar:**
-- ✅ Frames OriginStory beats 3 y 4 — recibidos y verificados (60 frames cada uno)
-- ✅ Imágenes reales del menú — 11/11 recibidas (`/public/images/menu/`)
+**Estado de i18n (Fase 12 completada):**
+- Locales: `en` (default, sin prefijo) y `es` (`/es`)
+- LanguageSwitcher: EN | ES en Navbar (desktop + mobile)
+- SSG: `/en` y `/es` pre-generados en build
+- Todos los componentes: texto en `messages/en.json` y `messages/es.json`
+- HeroScroll (Client): recibe `overlayMessages` como prop desde `page.tsx` (Server)
+- CoffeeQuiz (Client): `useTranslations('quiz')` para todas las cadenas y preguntas
 
 ---
 

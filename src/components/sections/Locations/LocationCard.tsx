@@ -1,9 +1,14 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
-import type { LocationCardProps } from './types'
+import type { LocationCardProps, HoursKey } from './types'
+
+type VenueId = 'la-whymper' | 'tumbaco'
 
 export default function LocationCard({ location, isActive, onClick }: LocationCardProps) {
+  const t = useTranslations('locations')
+
   return (
     <article
       aria-labelledby={`location-${location.id}`}
@@ -19,7 +24,7 @@ export default function LocationCard({ location, isActive, onClick }: LocationCa
         aria-pressed={isActive}
       >
         <p className="text-label-md uppercase text-secondary">
-          {location.neighborhood}
+          {t(`venues.${location.id as VenueId}.neighborhood`)}
         </p>
         <h3
           id={`location-${location.id}`}
@@ -34,10 +39,12 @@ export default function LocationCard({ location, isActive, onClick }: LocationCa
       </address>
 
       <div className="mt-4 space-y-2">
-        <p className="text-label-md uppercase text-secondary">Horarios</p>
+        <p className="text-label-md uppercase text-secondary">{t('hoursLabel')}</p>
         {location.hours.map((h) => (
-          <div key={h.label} className="flex gap-3 items-baseline">
-            <span className="text-label-md text-secondary/70 w-16 shrink-0">{h.label}</span>
+          <div key={h.hoursKey} className="flex gap-3 items-baseline">
+            <span className="text-label-md text-secondary/70 w-16 shrink-0">
+              {t(`days.${h.hoursKey as HoursKey}`)}
+            </span>
             <span className="text-body-md text-on-primary/70">{h.time}</span>
           </div>
         ))}
@@ -49,10 +56,10 @@ export default function LocationCard({ location, isActive, onClick }: LocationCa
         size="sm"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Cómo llegar a ${location.name} (abre Google Maps en nueva pestaña)`}
+        aria-label={t('directionsAriaLabel', { name: location.name })}
         className="mt-6"
       >
-        Cómo llegar
+        {t('directionsLabel')}
       </Button>
     </article>
   )

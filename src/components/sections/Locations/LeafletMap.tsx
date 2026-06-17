@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import 'leaflet/dist/leaflet.css'
 import { useLeafletMap } from './useLeafletMap'
 import type { LeafletMapProps } from './types'
@@ -10,6 +11,7 @@ export default function LeafletMap({
   activeId,
   onMarkerClick,
 }: LeafletMapProps) {
+  const t = useTranslations('locations')
   const containerRef = useRef<HTMLDivElement>(null)
 
   useLeafletMap({ containerRef, locations, activeId, onMarkerClick })
@@ -18,7 +20,7 @@ export default function LeafletMap({
     <div
       ref={containerRef}
       role="application"
-      aria-label="Mapa interactivo de ubicaciones de Coffee Relief"
+      aria-label={t('mapAriaLabel')}
       className="w-full h-locations-map-mob md:h-locations-map rounded-lg overflow-hidden"
     />
   )

@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
+import { useTranslations } from 'next-intl'
 import LocationCard from './LocationCard'
-import type { LocationData } from './types'
+import type { LocationData, HoursKey } from './types'
 
 const LeafletMap = dynamic(() => import('./LeafletMap'), {
   ssr: false,
@@ -20,6 +21,7 @@ interface LocationsClientProps {
 }
 
 export default function LocationsClient({ locations }: LocationsClientProps) {
+  const t = useTranslations('locations')
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const handleCardClick = useCallback((id: string) => {
@@ -32,7 +34,7 @@ export default function LocationsClient({ locations }: LocationsClientProps) {
 
   return (
     <div className="mt-16 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-0 lg:gap-12 items-start">
-      {/* Panel de sedes */}
+      {/* Location cards */}
       <div className="order-2 lg:order-1">
         {locations.map((loc) => (
           <LocationCard
@@ -44,7 +46,7 @@ export default function LocationsClient({ locations }: LocationsClientProps) {
         ))}
       </div>
 
-      {/* Mapa */}
+      {/* Map */}
       <div className="order-1 lg:order-2 lg:sticky lg:top-24">
         <LeafletMap
           locations={locations}
@@ -53,11 +55,14 @@ export default function LocationsClient({ locations }: LocationsClientProps) {
         />
         <noscript>
           <div className="p-6 bg-primary-container rounded-lg mt-4 space-y-4">
+            <p className="font-display text-headline-sm text-on-primary-container mb-2">
+              {t('noscriptTitle')}
+            </p>
             {locations.map((loc) => (
               <address key={loc.id} className="not-italic text-on-primary-container text-body-md">
                 <strong className="font-display text-headline-sm block mb-1">{loc.name}</strong>
                 {loc.address}<br />
-                {loc.hours.map((h) => `${h.label}: ${h.time}`).join(' · ')}
+                {loc.hours.map((h) => `${t(`days.${h.hoursKey as HoursKey}`)}: ${h.time}`).join(' · ')}
               </address>
             ))}
           </div>

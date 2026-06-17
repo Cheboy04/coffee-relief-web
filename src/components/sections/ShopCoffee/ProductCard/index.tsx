@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils/cn'
 import Button from '@/components/ui/Button'
 import type { ProductCardProps } from './types'
 
 export default function ProductCard({ product, isFirst = false }: ProductCardProps) {
+  const t = useTranslations('shop')
   const [added, setAdded] = useState(false)
   const size = product.sizes[0]
 
@@ -71,14 +73,9 @@ export default function ProductCard({ product, isFirst = false }: ProductCardPro
             variant="primary"
             size="sm"
             className={cn('self-start', added && 'pointer-events-none')}
-            aria-label={
-              added
-                ? `${product.name} agregado`
-                : `Agregar ${product.name} al carrito`
-            }
             onClick={handleAdd}
           >
-            {added ? 'Agregado ✓' : 'Agregar'}
+            {added ? t('addedCta') : t('addCta')}
           </Button>
         </div>
       </div>

@@ -1,5 +1,6 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import Button from '@/components/ui/Button'
+import LanguageSwitcher from '../LanguageSwitcher'
 import type { NavLinksProps } from '../types'
 
 export default function NavLinks({ links, ctaLabel, ctaHref }: NavLinksProps) {
@@ -18,6 +19,7 @@ export default function NavLinks({ links, ctaLabel, ctaHref }: NavLinksProps) {
           </li>
         ))}
       </ul>
+      <LanguageSwitcher />
       <Button
         href={ctaHref}
         size="sm"

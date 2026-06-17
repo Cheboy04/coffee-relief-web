@@ -1,6 +1,9 @@
+import { getTranslations } from 'next-intl/server'
 import ExperienceCardsGrid from './ExperienceCardsGrid'
 
-export default function ExperienceCards() {
+export default async function ExperienceCards() {
+  const t = await getTranslations('experienceCards')
+
   return (
     <section
       id="experiencias"
@@ -8,7 +11,7 @@ export default function ExperienceCards() {
       className="bg-surface py-section"
     >
       <h2 id="experiencias-heading" className="sr-only">
-        Nuestras experiencias
+        {t('sectionLabel')}
       </h2>
       <ExperienceCardsGrid />
     </section>

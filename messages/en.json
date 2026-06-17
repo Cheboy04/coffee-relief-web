@@ -1,0 +1,310 @@
+{
+  "meta": {
+    "title": "Coffee Relief — Specialty Coffee from Ecuador",
+    "description": "Premium specialty coffee roasted at origin in Ecuador. Direct trade, sustainable, internationally awarded. Shop online or visit our café."
+  },
+  "nav": {
+    "menu": "Menu",
+    "shop": "Shop",
+    "origin": "Origin",
+    "blog": "Journal",
+    "locations": "Find Us",
+    "cta": "Buy Coffee",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "mobileMenuLabel": "Mobile navigation menu",
+    "closeMenuShort": "Close menu",
+    "skipToContent": "Skip to content",
+    "home": "Coffee Relief — home"
+  },
+  "footer": {
+    "tagline": "Ecuadorian specialty coffee roasted at origin. Direct trade, sustainable, internationally awarded.",
+    "copyright": "All rights reserved.",
+    "ariaLabel": "Coffee Relief footer",
+    "groups": {
+      "explore": {
+        "title": "Explore",
+        "menu": "Menu",
+        "shop": "Shop",
+        "blog": "Journal"
+      },
+      "brand": {
+        "title": "The Brand",
+        "origin": "Our Story",
+        "sustainability": "Sustainability",
+        "awards": "Awards",
+        "locations": "Locations"
+      }
+    },
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms of Use"
+    },
+    "social": {
+      "instagram": "Coffee Relief on Instagram",
+      "tiktok": "Coffee Relief on TikTok",
+      "facebook": "Coffee Relief on Facebook"
+    }
+  },
+  "hero": {
+    "ariaLabel": "Coffee Relief — origin story",
+    "beat1": {
+      "headline": "From Ecuadorian origin",
+      "subline": "Roasted on the slopes of the volcano"
+    },
+    "beat2": {
+      "headline": "To the perfect bean",
+      "subline": "Direct trade · specialty roast"
+    },
+    "beat3": {
+      "headline": "Coffee Relief",
+      "subline": "Bring the origin home",
+      "cta": "Buy Coffee"
+    }
+  },
+  "trustBar": {
+    "volcanic": "100% Volcanic Coffee",
+    "producer": "Direct from Producer",
+    "roasted": "Artisan Roasted",
+    "shipping": "Free Shipping from $35",
+    "eco": "Sustainable Packaging"
+  },
+  "originStory": {
+    "sectionLabel": "The origin",
+    "beat1": {
+      "eyebrow": "Valle del Chota",
+      "headline": "Volcanic by nature",
+      "body": "At 1,800 meters, the volcanic ash soils of northern Ecuador concentrate sugars and acidity into every cherry. Coffee doesn't grow here despite the terrain — it grows because of it.",
+      "imageAlt": "Volcanic hillsides of northern Ecuador at dawn, Coffee Relief coffee farm"
+    },
+    "beat2": {
+      "eyebrow": "Hand harvest",
+      "headline": "Only the bean at its peak",
+      "body": "Each cherry is picked by hand at exactly the right shade of red. An expert picker selects from 40,000 beans per day and discards anything the tree wasn't ready to release.",
+      "imageAlt": "Hands picking ripe coffee cherries on the farm, manual harvest in Ecuador"
+    },
+    "beat3": {
+      "eyebrow": "Quito, 2,850 m",
+      "headline": "Roasted where it's born",
+      "body": "We roast at origin, at 2,850 meters above sea level. The reduced pressure demands more time in the drum — that extra margin is where we develop the cocoa, caramel and hazelnut notes that define Coffee Relief.",
+      "imageAlt": "Artisan roasting drum in Quito with coffee beans in transformation"
+    },
+    "beat4": {
+      "eyebrow": "No middlemen",
+      "headline": "From producer to your cup",
+      "body": "We buy directly from three producer families in Imbabura, at above-market prices. No exporters, no brokers. Exceptional coffee requires that those who grow it can keep growing it.",
+      "imageAlt": "Ecuadorian farmer delivering green coffee sacks directly to Coffee Relief"
+    }
+  },
+  "experienceCards": {
+    "sectionLabel": "Experiences",
+    "cafeteria": {
+      "title": "The Café",
+      "eyebrow": "Café · Quito",
+      "summary": "A space where espresso takes shape. Precision barism, intimate atmosphere and single-origin beans. Come discover why every cup is an unrepeatable experience.",
+      "ctaFront": "Visit us",
+      "ctaBack": "See location",
+      "imageAlt": "Espresso bar at Coffee Relief café, Quito"
+    },
+    "tienda": {
+      "title": "Coffee Online",
+      "eyebrow": "Shop · National shipping",
+      "summary": "Small batches of Ecuadorian volcanic coffee, roasted weekly and shipped straight to your door. Light, medium or intense — you choose the depth of the journey.",
+      "ctaFront": "Shop now",
+      "ctaBack": "See shop",
+      "imageAlt": "Coffee Relief kraft bag on wooden table"
+    },
+    "tasting": {
+      "title": "Tasting",
+      "eyebrow": "Experiences · Cupping",
+      "summary": "Sessions guided by our Q-Grader: learn to identify flavor notes, origins and fermentation processes. Specialty coffee explained from the cup.",
+      "ctaFront": "Book a session",
+      "ctaBack": "See experiences",
+      "imageAlt": "Cupping session with tasting cups and sensory evaluation sheets"
+    },
+    "brunch": {
+      "title": "Brunch",
+      "eyebrow": "Menu · Saturdays & Sundays",
+      "summary": "Seasonal cooking with local ingredients, editorial presentation and the exact coffee for every moment of the morning. A brunch designed so that time doesn't matter.",
+      "ctaFront": "See menu",
+      "ctaBack": "Book a table",
+      "imageAlt": "Coffee Relief brunch table with artisan ceramics and specialty coffee"
+    }
+  },
+  "shop": {
+    "eyebrow": "Our coffee",
+    "heading": "Find your relief",
+    "cta": "See full catalogue",
+    "addCta": "Add",
+    "addedCta": "Added ✓",
+    "from": "From",
+    "per": "per",
+    "products": {
+      "bold": {
+        "intensity": "Intense",
+        "origin": "Zamora Chinchipe",
+        "flavorNotes": ["Chocolate", "Structured sweetness", "Full body"],
+        "description": "Chocolate-forward with structured sweetness and a balanced body. Low acidity, full presence.",
+        "imageAlt": "Bold Relief bag — illustration of a person in a café with a mountain mural in the background"
+      },
+      "tropical": {
+        "intensity": "Light",
+        "origin": "Valle del Chota, Carchi",
+        "flavorNotes": ["Floral", "Citrus", "Bright acidity"],
+        "description": "Bright, floral, and full of citrus complexity. A medium roast that surprises with every sip.",
+        "imageAlt": "Tropical Relief bag — illustration of a person in an active outdoor scene"
+      },
+      "immersive": {
+        "intensity": "Medium",
+        "origin": "Nanegal, Pichincha",
+        "flavorNotes": ["Smooth", "Balanced", "Accessible sweetness"],
+        "description": "Smooth, balanced, and accessible. A medium roast designed to be enjoyed any way you brew it.",
+        "imageAlt": "Immersive Relief bag — illustration of a person brewing coffee at home with a Chemex"
+      }
+    }
+  },
+  "quiz": {
+    "eyebrow": "Find your match",
+    "heading": "What's your ideal coffee?",
+    "step": "Question {current} of {total}",
+    "next": "Next",
+    "back": "Previous",
+    "recommend": "See my coffee",
+    "retry": "Try again",
+    "resultLabel": "Your coffee is",
+    "q1": {
+      "question": "When do you usually drink your coffee?",
+      "options": {
+        "manana": "First thing in the morning, before breakfast",
+        "media": "Mid-morning with a snack",
+        "almuerzo": "After lunch",
+        "cualquiera": "Any time of day"
+      }
+    },
+    "q2": {
+      "question": "What do you look for in a cup?",
+      "options": {
+        "delicado": "Something delicate, fruity and bright",
+        "equilibrado": "Balanced, round and sweet",
+        "potente": "Bold, with body and a long finish"
+      }
+    },
+    "q3": {
+      "question": "How do you brew your coffee at home?",
+      "options": {
+        "filtro": "Pour over, Chemex or AeroPress",
+        "prensa": "French press or moka",
+        "espresso": "Espresso machine",
+        "cafeteria": "I prefer it at a café"
+      }
+    },
+    "results": {
+      "bold": {
+        "headline": "Bold Relief",
+        "message": "Deep, persistent and no-nonsense — the coffee for those who know exactly what they want."
+      },
+      "immersive": {
+        "headline": "Immersive Relief",
+        "message": "Smooth, balanced and dependable — the coffee that's there for you every single day."
+      },
+      "tropical": {
+        "headline": "Tropical Relief",
+        "message": "Bright, floral and full of life — the coffee for those who want something different."
+      }
+    }
+  },
+  "menu": {
+    "eyebrow": "Full menu",
+    "heading": "What we serve",
+    "cta": "Book a table",
+    "categories": {
+      "cafe": { "label": "Specialty Coffees", "eyebrow": "The cup" },
+      "brunch": { "label": "Brunch", "eyebrow": "The table" },
+      "frio": { "label": "Cold Drinks", "eyebrow": "The pause" }
+    },
+    "items": {
+      "espresso-largo": {
+        "name": "Espresso Lungo",
+        "description": "Bold Relief · 18 g · 45 ml · direct extraction at 9 bar.",
+        "imageAlt": "Espresso cup on volcanic stone surface"
+      },
+      "cortado-origen": {
+        "name": "Origin Cortado",
+        "description": "Bold Relief with whole Cayambe milk, 1:1 ratio.",
+        "imageAlt": "Cortado in a glass with latte art"
+      },
+      "filtrado-volcanico": {
+        "name": "Volcanic Filter",
+        "description": "V60 · Tropical Relief · 15 g · 250 ml · 92 °C. Floral and citrusy.",
+        "imageAlt": "V60 brewing with natural side lighting"
+      },
+      "latte-temporada": {
+        "name": "Seasonal Latte",
+        "description": "Double espresso, textured milk and artisan cane syrup.",
+        "imageAlt": "Large latte cup with microfoam and amber syrup"
+      },
+      "tostada-masa-madre": {
+        "name": "Sourdough Toast",
+        "description": "Natural leavened bread, Valle del Chota avocado, poached egg.",
+        "imageAlt": "Sourdough toast with avocado and poached egg on ceramic plate"
+      },
+      "benedictinos-altiplano": {
+        "name": "Altiplano Benedict",
+        "description": "Homemade muffin, serrano ham, yellow chili hollandaise.",
+        "imageAlt": "Eggs benedict with hollandaise sauce on artisan muffin"
+      },
+      "bowl-andino": {
+        "name": "Andean Bowl",
+        "description": "Black quinoa, roasted sweet potato, sautéed spinach and coconut yogurt.",
+        "imageAlt": "Bowl with quinoa, sweet potato and vegetables on linen"
+      },
+      "crepe-guayaba": {
+        "name": "Guava Crêpe",
+        "description": "Light batter, Ecuadorian guava, cream cheese and cane honey.",
+        "imageAlt": "Folded crêpe with guava and cane honey on white plate"
+      },
+      "cold-brew": {
+        "name": "Concentrate Cold Brew",
+        "description": "20 hours cold brew · Tropical Relief · Clean, bright, no acidity.",
+        "imageAlt": "Tall cold brew glass with ice and condensation"
+      },
+      "tonica-cafe": {
+        "name": "Coffee Tonic",
+        "description": "Cold brew, artisan tonic water and Puembo orange zest.",
+        "imageAlt": "Coffee tonic with orange slice and bubbles in a low glass"
+      },
+      "batido-platano": {
+        "name": "Banana Shake",
+        "description": "Immersive Relief, ripe banana, oat milk and cinnamon.",
+        "imageAlt": "Creamy shake with cinnamon dusted on top"
+      }
+    },
+    "tags": {
+      "signature": "Signature",
+      "vegano": "Vegan",
+      "sin-gluten": "Gluten-free"
+    }
+  },
+  "locations": {
+    "eyebrow": "Find us",
+    "heading": "Where to find us",
+    "hoursLabel": "Hours",
+    "directionsLabel": "Get directions",
+    "directionsAriaLabel": "Get directions to {name} (opens Google Maps in new tab)",
+    "mapAriaLabel": "Interactive map of Coffee Relief locations in Quito",
+    "noscriptTitle": "Our locations",
+    "days": {
+      "monFri": "Mon–Fri",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "satSun": "Sat–Sun"
+    },
+    "venues": {
+      "la-whymper": { "neighborhood": "La Whymper · Near La Floresta" },
+      "tumbaco": { "neighborhood": "La Morita · Tumbaco" }
+    }
+  },
+  "common": {
+    "openInNewTab": "(opens in new tab)"
+  }
+}

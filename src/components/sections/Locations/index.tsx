@@ -1,7 +1,10 @@
+import { getTranslations } from 'next-intl/server'
 import { LOCATIONS } from '@/data/locations'
 import LocationsClient from './LocationsClient'
 
-export default function Locations() {
+export default async function Locations() {
+  const t = await getTranslations('locations')
+
   return (
     <section
       id="locations"
@@ -11,13 +14,13 @@ export default function Locations() {
       <div className="max-w-content mx-auto">
         <div className="flex flex-col gap-3">
           <span className="font-sans text-label-md uppercase text-secondary">
-            Dónde estamos
+            {t('eyebrow')}
           </span>
           <h2
             id="locations-title"
             className="font-display text-headline-md text-on-primary"
           >
-            Encuéntranos
+            {t('heading')}
           </h2>
         </div>
 

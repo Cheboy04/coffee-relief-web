@@ -29,8 +29,20 @@ export interface OverlayMessage {
   cta?: OverlayCTA
 }
 
+/** Structural data for an overlay — no translatable text, only scroll/position metadata. */
+export interface OverlayStructure {
+  id: 'cup' | 'beans' | 'bag'
+  scrollStart: number
+  scrollPeak: number
+  scrollEnd: number
+  position: OverlayPosition
+  cta?: { href: string }
+}
+
 /** Props públicas del componente. Todas con default → uso sin props posible. */
 export interface HeroScrollProps {
+  overlayMessages?: readonly OverlayMessage[]
+  ariaLabel?: string
   videoSrc?: string    // default '/video/hero.mp4' — usado en loop/static
   posterSrc?: string   // default '/images/hero/hero-poster.webp'
   frameDir?: string    // default '/frames' — directorio de frames WebP para scrub desktop

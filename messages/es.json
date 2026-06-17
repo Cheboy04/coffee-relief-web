@@ -1,0 +1,310 @@
+{
+  "meta": {
+    "title": "Coffee Relief — Café de especialidad del Ecuador",
+    "description": "Café de especialidad ecuatoriano tostado en origen. Comercio directo, sostenible y con reconocimiento internacional. Compra online o visita nuestra cafetería."
+  },
+  "nav": {
+    "menu": "Menú",
+    "shop": "Tienda",
+    "origin": "Origen",
+    "blog": "Blog",
+    "locations": "Ubicaciones",
+    "cta": "Comprar café",
+    "openMenu": "Abrir menú de navegación",
+    "closeMenu": "Cerrar menú de navegación",
+    "mobileMenuLabel": "Menú de navegación móvil",
+    "closeMenuShort": "Cerrar menú",
+    "skipToContent": "Saltar al contenido",
+    "home": "Coffee Relief — página de inicio"
+  },
+  "footer": {
+    "tagline": "Café de especialidad ecuatoriano tostado en origen. Comercio directo, sostenible y con reconocimiento internacional.",
+    "copyright": "Todos los derechos reservados.",
+    "ariaLabel": "Pie de página de Coffee Relief",
+    "groups": {
+      "explore": {
+        "title": "Explorar",
+        "menu": "Menú",
+        "shop": "Tienda",
+        "blog": "Blog"
+      },
+      "brand": {
+        "title": "La marca",
+        "origin": "Origen",
+        "sustainability": "Sostenibilidad",
+        "awards": "Premios",
+        "locations": "Ubicaciones"
+      }
+    },
+    "legal": {
+      "privacy": "Privacidad",
+      "terms": "Términos de uso"
+    },
+    "social": {
+      "instagram": "Coffee Relief en Instagram",
+      "tiktok": "Coffee Relief en TikTok",
+      "facebook": "Coffee Relief en Facebook"
+    }
+  },
+  "hero": {
+    "ariaLabel": "Coffee Relief — historia de origen",
+    "beat1": {
+      "headline": "Del origen ecuatoriano",
+      "subline": "Tostado en las laderas del volcán"
+    },
+    "beat2": {
+      "headline": "Al grano perfecto",
+      "subline": "Comercio directo · tueste de especialidad"
+    },
+    "beat3": {
+      "headline": "Coffee Relief",
+      "subline": "Llévate el origen a casa",
+      "cta": "Comprar café"
+    }
+  },
+  "trustBar": {
+    "volcanic": "Café 100% Volcánico",
+    "producer": "Directo del Productor",
+    "roasted": "Tostado Artesanal",
+    "shipping": "Envío Gratis desde $35",
+    "eco": "Empaque Sostenible"
+  },
+  "originStory": {
+    "sectionLabel": "El origen",
+    "beat1": {
+      "eyebrow": "Valle del Chota",
+      "headline": "Volcánico por naturaleza",
+      "body": "A 1.800 metros, los suelos de ceniza volcánica del norte ecuatoriano concentran azúcares y acidez en cada cereza. El café no crece aquí a pesar del terreno — crece gracias a él.",
+      "imageAlt": "Laderas volcánicas del norte de Ecuador al amanecer, finca cafetalera de Coffee Relief"
+    },
+    "beat2": {
+      "eyebrow": "Cosecha manual",
+      "headline": "Solo el grano en su punto",
+      "body": "Cada cereza se recoge a mano cuando alcanza el rojo exacto. Un recolector experto selecciona entre 40.000 granos por día y descarta los que el árbol no estaba listo para soltar.",
+      "imageAlt": "Manos recogiendo cerezas de café maduras en la finca, cosecha manual en Ecuador"
+    },
+    "beat3": {
+      "eyebrow": "Quito, 2.850 m",
+      "headline": "El tueste donde nace",
+      "body": "Tostamos en origen, a 2.850 metros de altitud. La presión reducida exige más tiempo en el tambor — ese margen extra es donde desarrollamos los tonos a cacao, caramelo y nuez que definen a Coffee Relief.",
+      "imageAlt": "Tambor tostador artesanal en Quito con granos de café en transformación"
+    },
+    "beat4": {
+      "eyebrow": "Sin intermediarios",
+      "headline": "Del productor a tu taza",
+      "body": "Compramos directamente de tres familias productoras en Imbabura, a precio por encima del mercado. Sin exportadores, sin brokers. El café excepcional requiere que quien lo cultiva pueda seguir cultivándolo.",
+      "imageAlt": "Agricultor ecuatoriano entregando sacos de café verde directamente a Coffee Relief"
+    }
+  },
+  "experienceCards": {
+    "sectionLabel": "Experiencias",
+    "cafeteria": {
+      "title": "La Cafetería",
+      "eyebrow": "Cafetería · Quito",
+      "summary": "Un espacio donde el espresso toma forma. Barismo de precisión, ambiente íntimo y granos de origen único. Ven a descubrir por qué cada taza es una experiencia irrepetible.",
+      "ctaFront": "Visítanos",
+      "ctaBack": "Ver ubicación",
+      "imageAlt": "Barra de espresso en la cafetería Coffee Relief, Quito"
+    },
+    "tienda": {
+      "title": "Café Online",
+      "eyebrow": "Tienda · Envío nacional",
+      "summary": "Lotes pequeños de café volcánico ecuatoriano, tostados a la semana y enviados directo a tu puerta. Perfil claro, medio o intenso — tú eliges la intensidad del viaje.",
+      "ctaFront": "Comprar ahora",
+      "ctaBack": "Ver tienda",
+      "imageAlt": "Funda kraft de café Coffee Relief sobre mesa de madera"
+    },
+    "tasting": {
+      "title": "Tasting",
+      "eyebrow": "Experiencias · Cupping",
+      "summary": "Sesiones guiadas por nuestro Q-Grader: aprende a identificar notas de sabor, orígenes y procesos de fermentación. El café de especialidad explicado desde la taza.",
+      "ctaFront": "Reservar sesión",
+      "ctaBack": "Ver experiencias",
+      "imageAlt": "Sesión de cupping con tazas de cata y fichas de evaluación sensorial"
+    },
+    "brunch": {
+      "title": "Brunch",
+      "eyebrow": "Menú · Sábados y domingos",
+      "summary": "Cocina de temporada con ingredientes locales, presentación editorial y el café exacto para cada momento de la mañana. Un brunch diseñado para que el tiempo no importe.",
+      "ctaFront": "Ver menú",
+      "ctaBack": "Reservar mesa",
+      "imageAlt": "Mesa de brunch Coffee Relief con cerámica artesanal y café de especialidad"
+    }
+  },
+  "shop": {
+    "eyebrow": "Tienda",
+    "heading": "Nuestro café",
+    "cta": "Ver catálogo completo",
+    "addCta": "Agregar",
+    "addedCta": "Agregado ✓",
+    "from": "Desde",
+    "per": "por",
+    "products": {
+      "bold": {
+        "intensity": "Intenso",
+        "origin": "Zamora Chinchipe",
+        "flavorNotes": ["Chocolate", "Dulzura estructurada", "Cuerpo pleno"],
+        "description": "Chocolate como punto de partida y dulzura que se sostiene hasta el final. Un café de carácter, sin acidez que distraiga.",
+        "imageAlt": "Funda Bold Relief — ilustración de persona en cafetería con mural de montañas al fondo"
+      },
+      "tropical": {
+        "intensity": "Suave",
+        "origin": "Valle del Chota, Carchi",
+        "flavorNotes": ["Floral", "Cítrico", "Acidez brillante"],
+        "description": "Brillante, frutal y lleno de vida. Un café que despierta el paladar con notas florales y una complejidad cítrica que sorprende.",
+        "imageAlt": "Funda Tropical Relief — ilustración de persona en escena activa al aire libre"
+      },
+      "immersive": {
+        "intensity": "Medio",
+        "origin": "Nanegal, Pichincha",
+        "flavorNotes": ["Suave", "Balanceado", "Dulzura accesible"],
+        "description": "Suave, equilibrado y sin sorpresas. El café que encaja en cualquier momento del día y en cualquier método de preparación.",
+        "imageAlt": "Funda Immersive Relief — ilustración de persona preparando café en casa con Chemex"
+      }
+    }
+  },
+  "quiz": {
+    "eyebrow": "Encuentra tu match",
+    "heading": "¿Cuál es tu café ideal?",
+    "step": "Pregunta {current} de {total}",
+    "next": "Siguiente",
+    "back": "Anterior",
+    "recommend": "Ver mi café",
+    "retry": "Volver a intentar",
+    "resultLabel": "Tu café es",
+    "q1": {
+      "question": "¿Cuándo sueles tomar tu café?",
+      "options": {
+        "manana": "Al despertar, antes de desayunar",
+        "media": "A media mañana con algo de comer",
+        "almuerzo": "Después del almuerzo",
+        "cualquiera": "A cualquier hora del día"
+      }
+    },
+    "q2": {
+      "question": "¿Qué buscas en una taza?",
+      "options": {
+        "delicado": "Algo delicado, frutal y brillante",
+        "equilibrado": "Equilibrado, redondo y dulce",
+        "potente": "Potente, con cuerpo y final largo"
+      }
+    },
+    "q3": {
+      "question": "¿Cómo preparas tu café en casa?",
+      "options": {
+        "filtro": "Pour over, Chemex o AeroPress",
+        "prensa": "Prensa francesa o moka",
+        "espresso": "Máquina de espresso",
+        "cafeteria": "Prefiero tomarlo en cafetería"
+      }
+    },
+    "results": {
+      "bold": {
+        "headline": "Bold Relief",
+        "message": "Profundo, persistente y sin rodeos — el café para los que saben lo que quieren."
+      },
+      "immersive": {
+        "headline": "Immersive Relief",
+        "message": "Suave, equilibrado y sin sorpresas — el café que te acompaña cada día."
+      },
+      "tropical": {
+        "headline": "Tropical Relief",
+        "message": "Brillante, frutal y lleno de vida — el café para quienes buscan algo diferente."
+      }
+    }
+  },
+  "menu": {
+    "eyebrow": "Menú completo",
+    "heading": "Lo que servimos",
+    "cta": "Reservar mesa",
+    "categories": {
+      "cafe": { "label": "Cafés de especialidad", "eyebrow": "La taza" },
+      "brunch": { "label": "Brunch", "eyebrow": "La mesa" },
+      "frio": { "label": "Bebidas frías", "eyebrow": "La pausa" }
+    },
+    "items": {
+      "espresso-largo": {
+        "name": "Espresso Largo",
+        "description": "Bold Relief · 18 g · 45 ml · extracción directa a 9 bar.",
+        "imageAlt": "Taza de espresso sobre superficie de piedra volcánica"
+      },
+      "cortado-origen": {
+        "name": "Cortado de Origen",
+        "description": "Bold Relief con leche entera de Cayambe, ratio 1:1.",
+        "imageAlt": "Cortado en vaso de vidrio con dibujo en leche"
+      },
+      "filtrado-volcanico": {
+        "name": "Filtrado Volcánico",
+        "description": "V60 · Tropical Relief · 15 g · 250 ml · 92 °C. Floral y cítrico.",
+        "imageAlt": "V60 con café filtrándose y luz natural lateral"
+      },
+      "latte-temporada": {
+        "name": "Latte de Temporada",
+        "description": "Espresso doble, leche texturizada y jarabe de caña artesanal.",
+        "imageAlt": "Latte en taza grande con microespuma y jarabe ámbar"
+      },
+      "tostada-masa-madre": {
+        "name": "Tostada de Masa Madre",
+        "description": "Pan de levadura natural, aguacate del Valle del Chota, huevo escalfado.",
+        "imageAlt": "Tostada de masa madre con aguacate y huevo escalfado en plato de cerámica"
+      },
+      "benedictinos-altiplano": {
+        "name": "Benedictinos del Altiplano",
+        "description": "Muffin casero, jamón serrano, hollandaise de ají amarillo.",
+        "imageAlt": "Huevos benedictinos con salsa hollandaise sobre muffin artesanal"
+      },
+      "bowl-andino": {
+        "name": "Bowl Andino",
+        "description": "Quinoa negra, camote asado, espinaca salteada y yogur de coco.",
+        "imageAlt": "Bowl con quinoa, camote y vegetales sobre fondo de lino"
+      },
+      "crepe-guayaba": {
+        "name": "Crepe de Guayaba",
+        "description": "Masa ligera, guayaba ecuatoriana, queso crema y miel de caña.",
+        "imageAlt": "Crepe doblado con guayaba y miel de caña en plato blanco"
+      },
+      "cold-brew": {
+        "name": "Cold Brew Concentrado",
+        "description": "20 horas en frío · Tropical Relief · Limpio, brillante, sin acidez.",
+        "imageAlt": "Cold brew en vaso alto con hielo y condensación exterior"
+      },
+      "tonica-cafe": {
+        "name": "Tónica de Café",
+        "description": "Cold brew, agua tónica artesanal y ralladura de naranja de Puembo.",
+        "imageAlt": "Tónica de café con rodaja de naranja y burbujas en vaso bajo"
+      },
+      "batido-platano": {
+        "name": "Batido de Plátano",
+        "description": "Immersive Relief, plátano maduro, leche de avena y canela.",
+        "imageAlt": "Batido cremoso en vaso con canela espolvoreada encima"
+      }
+    },
+    "tags": {
+      "signature": "Signature",
+      "vegano": "Vegano",
+      "sin-gluten": "Sin gluten"
+    }
+  },
+  "locations": {
+    "eyebrow": "Dónde estamos",
+    "heading": "Encuéntranos",
+    "hoursLabel": "Horarios",
+    "directionsLabel": "Cómo llegar",
+    "directionsAriaLabel": "Cómo llegar a {name} (abre Google Maps en nueva pestaña)",
+    "mapAriaLabel": "Mapa interactivo de ubicaciones de Coffee Relief en Quito",
+    "noscriptTitle": "Nuestras ubicaciones",
+    "days": {
+      "monFri": "Lun–Vie",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "satSun": "Sáb–Dom"
+    },
+    "venues": {
+      "la-whymper": { "neighborhood": "La Whymper · cerca a La Floresta" },
+      "tumbaco": { "neighborhood": "La Morita · Tumbaco" }
+    }
+  },
+  "common": {
+    "openInNewTab": "(abre en nueva pestaña)"
+  }
+}

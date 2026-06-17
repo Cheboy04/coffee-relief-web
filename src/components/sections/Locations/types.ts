@@ -1,15 +1,16 @@
 import type { RefObject } from 'react'
 
+export type HoursKey = 'monFri' | 'saturday' | 'sunday' | 'satSun'
+
 export interface LocationHours {
-  label: string  // "Lun–Vie" | "Sábado" | "Sáb–Dom" …
-  time: string   // "8:30–20:00" | "8:00–13:00 · 15:00–20:00"
+  hoursKey: HoursKey
+  time: string
 }
 
 export interface LocationData {
   id: string
   name: string
   address: string
-  neighborhood: string
   hours: LocationHours[]
   coords: {
     lat: number
