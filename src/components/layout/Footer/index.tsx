@@ -34,15 +34,15 @@ export default async function Footer() {
       links: [
         { label: t('groups.explore.menu'),  href: '#menu' },
         { label: t('groups.explore.shop'),  href: '#shop' },
-        { label: t('groups.explore.blog'),  href: '#' },
+        { label: t('groups.explore.blog'),  href: '#blog' },
       ],
     },
     {
       title: t('groups.brand.title'),
       links: [
         { label: t('groups.brand.origin'),         href: '#' },
-        { label: t('groups.brand.sustainability'),  href: '#' },
-        { label: t('groups.brand.awards'),          href: '#' },
+        { label: t('groups.brand.sustainability'),  href: '#sustainability' },
+        { label: t('groups.brand.awards'),          href: '#awards' },
         { label: t('groups.brand.locations'),       href: '#locations' },
       ],
     },
@@ -55,8 +55,8 @@ export default async function Footer() {
   ]
 
   const legalLinks = [
-    { label: t('legal.privacy'), href: '#' },
-    { label: t('legal.terms'),   href: '#' },
+    { label: t('legal.privacy'), href: '#privacy' },
+    { label: t('legal.terms'),   href: '#terms' },
   ]
 
   return (

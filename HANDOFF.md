@@ -442,9 +442,8 @@ intensidad ganadora → producto:
 
 **Coordinación HeroScroll ↔ ShopCoffee:** no hay posicionamiento físico compartido. El morph es visual dentro del hero. ShopCoffee es independiente y renderiza `PRODUCTS` directamente. El conexto narrativo lo da el copy y la transición visual.
 
-### CTA /tienda
-`Button href="/tienda" variant="secondary"` en el footer de ShopCoffee.
-⚠️ **`/tienda` no existe** — ruta pendiente de fase futura (catálogo completo). Documentado en HANDOFF como pendiente sin número de fase asignado todavía.
+### CTA "See full catalogue"
+`Button href="#shop" variant="secondary"` — apunta al ancla de la misma sección mientras `/tienda` no existe. Cambiar a `/tienda` cuando se construya el catálogo completo.
 
 ---
 
@@ -478,7 +477,7 @@ Bebidas frías       (La pausa)    — 3 ítems — grid 3 cols (lg)
 
 **CTA:** `Button href="#reservas" variant="secondary"` — anchor pendiente (sin sistema de reservas aún).
 
-**Navbar:** `NAV_LINKS[0]` actualizado a `href: '#menu'` para anchor directo desde el home.
+**Navbar:** links anclados al home: `#menu`, `#shop`, `#locations`. `origin` (`/about`) y `blog` (`/blog`) mantienen rutas futuras.
 
 **Imágenes del menú:** ✅ 11/11 recibidas y activas (`/public/images/menu/`)
 
@@ -725,6 +724,7 @@ export default async function HomePage({ params }) {
 29. **i18n: Server Components llaman `getTranslations()`** — Client Components usan `useTranslations()`. HeroScroll es Client → page.tsx (Server) le pasa `overlayMessages` como prop.
 30. **i18n: datos sin texto** — `locations.ts`, `questions.ts`, `messages.ts` del hero solo tienen estructura/IDs/coords/scores. Todo texto en `messages/[locale].json`.
 31. **Navbar frosted glass post-hero** — CSS-driven via `html.navbar-scrolled`. Default (sin clase) es transparente: correcto para SSR sin flash. El glass crea su propio panel visual crema, haciendo el texto oscuro legible sobre cualquier fondo de sección (incluyendo Locations `bg-primary` y ExperienceCards dark). No usar `bg-surface` sólido.
+32. **Links single-landing** — mientras solo existe el home, todos los links de Navbar y Footer apuntan a anclas `#section`. Rutas `/about` y `/blog` en Navbar se dejan apuntando a sus rutas futuras. Social links del Footer pendientes de URLs reales del cliente. Legal (`#privacy`, `#terms`) son placeholders.
 
 ---
 
