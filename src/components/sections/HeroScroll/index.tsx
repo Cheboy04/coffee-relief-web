@@ -75,15 +75,26 @@ export default function HeroScroll({
     return () => v.removeEventListener('loadeddata', reveal)
   }, [mode, videoFailed])
 
-  // Color del Navbar: blanco mientras el hero está en viewport (todos los modos).
+  // Color del Navbar + frosted glass: coordina con hero en viewport (todos los modos).
+  // Hero visible   → texto blanco, sin backdrop (clase navbar-scrolled removida)
+  // Hero invisible → texto oscuro, frosted glass (clase navbar-scrolled añadida)
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const root = document.documentElement
-    const reset = () => root.style.setProperty('--navbar-fg-color', 'var(--color-on-surface)')
+    const reset = () => {
+      root.style.setProperty('--navbar-fg-color', 'var(--color-on-surface)')
+      root.classList.remove('navbar-scrolled')
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        root.style.setProperty('--navbar-fg-color', entry.isIntersecting ? '#ffffff' : 'var(--color-on-surface)')
+        if (entry.isIntersecting) {
+          root.style.setProperty('--navbar-fg-color', '#ffffff')
+          root.classList.remove('navbar-scrolled')
+        } else {
+          root.style.setProperty('--navbar-fg-color', 'var(--color-on-surface)')
+          root.classList.add('navbar-scrolled')
+        }
       },
       { threshold: 0 },
     )

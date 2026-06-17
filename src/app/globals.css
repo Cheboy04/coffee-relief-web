@@ -399,4 +399,19 @@
       height: 300vh;
     }
   }
+
+  /* ─── Navbar frosted glass — activo cuando el hero no está en viewport ─────── */
+  /* Default (SSR + hero visible): transparente — sin flash en primera carga.     */
+  /* html.navbar-scrolled añadido por HeroScroll IO al salir del viewport.        */
+  header[role="banner"] {
+    transition:
+      background-color 350ms ease,
+      backdrop-filter 350ms ease;
+  }
+
+  html.navbar-scrolled header[role="banner"] {
+    background-color: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  }
 }
