@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
           // HTTPS forzado en navegadores (Vercel sirve siempre por HTTPS).
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           // Restringe APIs del navegador que el sitio no usa.
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
     ]

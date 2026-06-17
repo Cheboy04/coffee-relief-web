@@ -40,6 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Large binary assets — manage via CDN in production
-/public/frames/
+# Large binary assets
+# hero frames (74MB) are committed so Vercel serves them as static files.
+# Migrar a un CDN/Vercel Blob si el peso del repo se vuelve un problema.
 /public/video/hero-scrub.mp4
