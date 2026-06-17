@@ -8,14 +8,14 @@ export default async function Navbar() {
 
   const links = [
     { label: t('menu'),      href: '#menu' },
-    { label: t('shop'),      href: '/shop' },
+    { label: t('shop'),      href: '#shop' },
     { label: t('origin'),    href: '/about' },
     { label: t('blog'),      href: '/blog' },
     { label: t('locations'), href: '#locations' },
   ]
 
   const ctaLabel = t('cta')
-  const ctaHref = '/shop'
+  const ctaHref = '#shop'
 
   return (
     <header

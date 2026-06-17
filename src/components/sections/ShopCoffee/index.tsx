@@ -38,8 +38,7 @@ export default async function ShopCoffee() {
         <ProductGrid products={translatedProducts} />
 
         <div className="mt-10 flex justify-center">
-          {/* TODO: /tienda — catálogo completo pendiente de fase futura sin número asignado */}
-          <Button href="/tienda" variant="secondary">
+          <Button href="#shop" variant="secondary">
             {t('cta')}
           </Button>
         </div>
