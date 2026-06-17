@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-15 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12
+> Última actualización: 2026-06-16 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12
 
 ---
 
@@ -255,11 +255,13 @@ link         text-secondary underline
 
 ## 7. Navbar y Footer — reglas críticas
 
-1. **Navbar siempre transparente** — nunca `bg-surface` ni fondo de ningún tipo
+1. **Navbar transparente en hero, frosted glass post-hero** — nunca `bg-surface` sólido
 2. **`--navbar-fg-color`** — color de texto via CSS variable; HeroScroll lo cambia con IntersectionObserver
-3. **Z-index Navbar: `z-sticky` (30)** — el hero usa z-index menores
-4. **Sin `pt-navbar` en `<main>`** — el hero es full-bleed; páginas interiores lo agregan ellas mismas
-5. **MobileMenu.tsx** es el único Client Component del Navbar
+3. **`html.navbar-scrolled`** — clase que activa el frosted glass; gestionada por el IO de HeroScroll
+4. **Frosted glass**: `backdrop-blur(12px) saturate(1.2) + bg-surface/78` con transición 350ms ease
+5. **Z-index Navbar: `z-sticky` (30)** — el hero usa z-index menores
+6. **Sin `pt-navbar` en `<main>`** — el hero es full-bleed; páginas interiores lo agregan ellas mismas
+7. **MobileMenu.tsx** es el único Client Component del Navbar
 
 ---
 
@@ -722,6 +724,7 @@ export default async function HomePage({ params }) {
 28. **i18n: SSG mantenido** — `setRequestLocale` en layout Y page. `generateStaticParams` genera `{ locale: [] }` para `/` y `{ locale: ['es'] }` para `/es`.
 29. **i18n: Server Components llaman `getTranslations()`** — Client Components usan `useTranslations()`. HeroScroll es Client → page.tsx (Server) le pasa `overlayMessages` como prop.
 30. **i18n: datos sin texto** — `locations.ts`, `questions.ts`, `messages.ts` del hero solo tienen estructura/IDs/coords/scores. Todo texto en `messages/[locale].json`.
+31. **Navbar frosted glass post-hero** — CSS-driven via `html.navbar-scrolled`. Default (sin clase) es transparente: correcto para SSR sin flash. El glass crea su propio panel visual crema, haciendo el texto oscuro legible sobre cualquier fondo de sección (incluyendo Locations `bg-primary` y ExperienceCards dark). No usar `bg-surface` sólido.
 
 ---
 
