@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-17 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14
+> Última actualización: 2026-06-18 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14, 15 (perf scrub)
 
 ---
 
@@ -76,6 +76,7 @@ SPEC  →  REVIEW  →  BUILD  →  VERIFY
 | next-intl | 4.13.0 | ✅ en uso (Fase 12) |
 | leaflet | 1.9.4 | ✅ (Fase 11) |
 | @types/leaflet | 1.9.21 | ✅ (Fase 11, dev) |
+| sharp | (dev) | ✅ (Fase 15 — encoder de frames, build-time, NO se envía al cliente) |
 
 ### Tailwind v4 — regla crítica
 
@@ -132,7 +133,7 @@ messages/
 middleware.ts           ← next-intl middleware (raíz del proyecto)
 
 public/
-  frames/               ← hero canvas scrub (161 frames WebP, frame_000000.webp)
+  frames/               ← hero canvas scrub (81 frames WebP q90, frame_000000.webp — reducido en Fase 15)
   images/
     hero/
       hero-poster.webp  ← placeholder del hero (usado en HeroCanvas + HeroVideo)
@@ -142,14 +143,18 @@ public/
       tasting.webp
       brunch.webp
     origin/
-      beat-1-origen/    ← frames canvas OriginStory (60 frames/beat, frame_000000.webp)
+      beat-1-origen/    ← frames canvas OriginStory (30 frames/beat q90, frame_000000.webp — reducido en Fase 15)
       beat-2-seleccion/
-      beat-3-tueste/    ← carpeta vacía — frames pendientes de entrega
-      beat-4-comercio/  ← carpeta vacía — frames pendientes de entrega
+      beat-3-tueste/    ← 30 frames q90 (Fase 15)
+      beat-4-comercio/  ← 30 frames q90 (Fase 15)
     products/           ← ⏳ pendiente — imágenes de ProductCard (ver §12 nomenclatura)
   video/
     hero.mp4            ← loop mobile (se mantiene)
     .gitkeep
+
+scripts/
+  subsample-frames.mjs  ← Fase 15 — conserva 1 de cada N frames + renombra contiguo (dir, factor)
+  recompress-frames.mjs ← Fase 15 — re-encode WebP a calidad dada vía sharp (dir, quality, maxDim)
 ```
 
 ---
@@ -203,7 +208,7 @@ h-experience-card     520px  ← altura card desktop — ExperienceCards
 h-experience-card-mob 420px  ← altura card mobile — ExperienceCards
 h-beat-track-mob  150vh  ← scroll track por beat (mobile) — OriginStory
 h-beat-track      200vh  ← scroll track por beat (desktop) — OriginStory
-h-beat-canvas-mob 56vw   ← altura canvas en mobile — OriginStory
+origin-text-scrim        ← gradiente cream abajo→arriba (overlay texto mobile OriginStory). Fase 15
 w-canvas-col      55%    ← columna canvas (desktop) — OriginStory
 w-text-col        45%    ← columna texto (desktop) — OriginStory
 h-navbar          var(--navbar-height)  ← 60px mobile / 72px desktop
@@ -288,9 +293,13 @@ types.ts
 - `static` — reduced-motion / saveData / no-JS: solo poster PNG
 
 **Assets:**
-- `/public/frames/frame_000000.webp` ... `frame_000160.webp` — 161 frames WebP (canvas mode)
+- `/public/frames/frame_000000.webp` ... `frame_000080.webp` — **81 frames WebP q90** (canvas mode; reducido de 161 en Fase 15)
 - `/public/video/hero.mp4` — video loop mobile
 - `/public/images/hero/hero-poster.webp` — poster WebP (usado en HeroCanvas + HeroVideo)
+
+**Fase 15 — cambios en HeroScroll:**
+- `frameCount` default **81** (antes 161). `HeroCanvas.drawFrame` ahora recibe **índice float** y mezcla floor/ceil (frame blending). `useHeroScrub` pasa `self.progress * (frameCount-1)` sin `Math.round`; `scrub: 0.4` (antes 0.3).
+- `HeroOverlay` en modo **loop/static (mobile)** ahora muestra **un solo mensaje** (h1 + subline del primer beat + CTA), no los 3 beats apilados. Antes el apilamiento causaba texto desfasado/cortado en el transitorio static→loop. Modo scrub (desktop) mantiene los 3 beats animados. `max-w-[1280px]` arbitrario → `max-w-content`.
 
 **Navbar integration:**
 ```typescript
@@ -329,7 +338,11 @@ tl.to(bag,    { opacity: 0, duration: 0.02 },                                  0
 
 **Ruta:** `src/components/sections/OriginStory/`
 
-Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × 60 frames WebP.
+Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × **30 frames WebP q90** (reducido de 60 en Fase 15).
+
+**Fase 15 — responsive mobile + fluidez:**
+- **Mobile responsive:** el canvas ahora es `sticky top-0 h-screen` (full-screen) con el texto en **overlay** abajo sobre `origin-text-scrim` (gradiente cream). Antes el canvas era `56vw` y NO sticky → el scrub ocurría fuera de pantalla. Se eliminó el token `h-beat-canvas-mob`. Eyebrow en mobile a `text-primary` (legibilidad sobre el scrim); desktop mantiene `text-secondary`. Una sola instancia de `<CanvasScrub>`; el texto se duplica en markup (overlay mobile `md:hidden` + columna desktop `hidden md:flex`).
+- **Fluidez:** `frameCount: 30` (`originStory.ts` ×4). `useCanvasScrub` ahora hace **frame blending** (`drawFrameBlended`: floor a alpha 1 + ceil a alpha=fracción) en scroll/resize/frames-arrive; `scrub: 0.5` (antes `true`, sin inercia).
 
 **Naming assets:**
 ```
@@ -689,10 +702,12 @@ const quizText = { q1: { question: t('q1.question'), options: { manana: t('q1.op
 
 - `Permissions-Policy` incluía `browsing-topics=()`, feature no reconocida por el navegador → warning en consola. Removida. Header final: `camera=(), microphone=(), geolocation=()`.
 
-### ⏳ PENDIENTE — Imágenes `next/image` cargan intermitente (desktop) / nunca (mobile)
+### ✅ REEVALUADO (Fase 15) — Imágenes `next/image` "intermitentes" eran LATENCIA, no error
 
-- **Síntoma:** las imágenes de ExperienceCards, ShopCoffee (productos) y MenuVisual cargan "a veces sí, a veces no" en desktop y **no cargan en mobile** (solo el poster del hero). Los archivos **SÍ están en git** (verificado: 269 assets trackeados, solo los 161 frames faltaban).
-- **Hipótesis:** estas imágenes usan `next/image` → optimizador de Vercel (`/_next/image?url=...`). El patrón (desktop intermitente, mobile nunca) apunta a fallo del optimizador, no a archivos faltantes.
+- **Hallazgo (HAR de prod, desktop + mobile):** **todas las peticiones de imagen devuelven 200.** Cero `402/429/500/404`. No hay fallo del optimizador. Lo que se percibía como "a veces no cargan" era **latencia/ancho de banda**: en mobile los 74 MB de frames del hero (modo scrub no aplica en mobile, pero el optimizador hace cold-start) competían por la red. "Se demora pero aparece" = confirmado por el usuario.
+- **Resuelto indirectamente por Fase 15:** al bajar los frames de 222 MB → ~12 MB se liberó el cuello de red; las `next/image` cargan sin competencia. NO se aplicó `images.unoptimized: true` (no hacía falta — no había error).
+- **Síntoma original:** las imágenes de ExperienceCards, ShopCoffee y MenuVisual cargaban "a veces sí, a veces no". Los archivos siempre estuvieron en git (269 assets trackeados).
+- **Si reaparece:** ver tabla de diagnóstico por código HTTP abajo (sigue válida como referencia).
 
 - **EVIDENCIA NECESARIA para la próxima sesión** (pedir al usuario, en la URL de prod tras el redeploy de los frames):
   1. DevTools → Network → filtrar `_next/image` o `image`.
@@ -711,11 +726,45 @@ const quizText = { q1: { question: t('q1.question'), options: { manana: t('q1.op
 - **Fix más probable:** `images.unoptimized: true`. **Todas las imágenes del proyecto ya son WebP pre-dimensionadas**, así que servirlas como estáticas (sin optimizador) elimina el punto de fallo sin penalización real de peso. Aplicar SOLO tras confirmar el código HTTP. Afecta: `next.config.ts` → bloque `images`.
 - **Archivos relevantes:** componentes con `<Image>` → `ExperienceCard.tsx`, `ProductCard/index.tsx`, `MenuItemCard.tsx`, `HeroTransition.tsx`, `HeroCanvas.tsx` (poster), `HeroVideo.tsx` (poster). Config: `next.config.ts`.
 
-### Cómo retomar este issue en sesión nueva
-
-> "Retomamos Coffee Relief Web en producción (https://coffee-relief-web.vercel.app). Lee `HANDOFF.md` §12.5. Los frames del hero ya están resueltos (commit 13a0db7). Falta el issue de `next/image`: te paso el código HTTP de una imagen fallida del Network tab. Diagnostica y aplica el fix (probablemente `images.unoptimized: true`)."
-
 ---
+
+## 12.6 Fase 15 — Performance del canvas frame-scrub + responsive mobile
+
+> Rama de trabajo: `feature/iteraciones-ui` (conservada). Mergeada a `main` (commit merge `befb998`) → desplegada a prod.
+
+### Diagnóstico (vía HAR de prod)
+- **El 97% del peso y 78% de las peticiones eran frames de canvas.** Hero 161 frames (74 MB, solo desktop/scrub) + OriginStory 240 frames (148 MB, desktop **y mobile**). Total ~222 MB / 401 requests. Sin errores — la técnica misma (cada frame = 1 request) era el cuello.
+
+### Fase 1 — Fluidez (commit `d203864`)
+El scrub se sentía "a frames pasando" por: (1) snap a frame entero (`Math.round/floor`), (2) OriginStory con `scrub: true` (sin inercia).
+- **Frame blending (cross-dissolve):** dibuja frame `floor` a alpha 1 + `ceil` a alpha = parte fraccionaria del progreso → movimiento continuo aunque haya menos frames. Hero (`HeroCanvas`) + OriginStory (`drawFrameBlended` en `useCanvasScrub`).
+- **Inercia:** hero `scrub 0.3→0.4`; OriginStory `true→0.5`.
+- Clave: el blending **interpola los huecos**, habilitando reducir frames sin perder fluidez.
+- Nota: la fluidez solo se aprecia en **prod** (frames cacheados); en dev cargan progresivamente.
+
+### Fase 2 — Reducir frames (commit `5b28588`)
+- Submuestreo **factor 2** (1 de cada 2) + renombrado contiguo: hero 161→**81**, OriginStory 60→**30**/beat. `frameCount` actualizado en `HeroScroll` (default 81) y `originStory.ts` (30 ×4).
+- Requests 401→**201**. Script: `scripts/subsample-frames.mjs`.
+- Pendiente opcional: bajar a **factor 3** si la fluidez aguanta en prod (paso 2 diferido).
+
+### Fase 3 — Recomprimir (commit `e77120a`, q90)
+- Re-encode WebP **q90** vía sharp. Los originales venían casi sin pérdida.
+- **222 MB → ~12 MB** (hero 3.6 MB, origin 8.7 MB). -94% peso, calidad ~99%.
+- **Decisión q90 sobre q76:** se probó q76 (-95%, ~7 MB) pero ablandaba detalle fino visiblemente (comparación a 100%). q90 cuesta solo ~1 MB más en total y es indistinguible del original. Script: `scripts/recompress-frames.mjs`.
+- `sharp` agregado como **devDependency** (build-time, no se envía al cliente).
+
+### Reproducir el pipeline (originales → optimizado)
+```bash
+git checkout d203864 -- public/frames public/images/origin   # restaurar originales
+node scripts/subsample-frames.mjs public/frames 2
+node scripts/recompress-frames.mjs public/frames 90
+# repetir subsample+recompress por cada public/images/origin/beat-*
+```
+Los **frames originales (calidad completa) viven en el historial git** (commit `d203864`) — revert siempre posible.
+
+### Fases 4 y 5 — descartadas (ya no aplican)
+- **Fase 4 (estrategia mobile OriginStory):** era para evitar ~150 MB en mobile. Tras Fase 3 son ~9 MB → innecesaria.
+- **Fase 5 (migrar frames a CDN/Blob):** el árbol pesa ~12 MB de frames → la deuda de §12.5 se resuelve por tamaño. Decisión del usuario: **conservar historial git** (infla el clone, NO el deploy de Vercel, que solo usa el checkout).
 
 ## 13. page.tsx — estado actual (`src/app/[locale]/page.tsx`)
 
@@ -761,6 +810,7 @@ export default async function HomePage({ params }) {
 | 12 | i18n (next-intl v4 · en/es · SSG · [locale] segment) | ✅ | ✓ | ✓ | ✓ |
 | 13 | Performance + Accesibilidad (audit Lighthouse/axe) | ✅ | ✓ | ✓ | ✓ |
 | 14 | Deploy a Vercel (config + headers + sitemap/robots) | ✅ | ✓ | ✓ | ✓ |
+| 15 | Perf scrub (blending + inercia, frames 222→12 MB) + responsive mobile | ✅ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -828,6 +878,11 @@ export default async function HomePage({ params }) {
 34. **Deshabilitado sin `opacity`** — los estados disabled que deban pasar contraste WCAG usan tokens sólidos (`bg-surface-high text-on-surface-variant`), nunca `opacity-50` (compone el color de fondo y baja el ratio bajo 4.5:1).
 35. **Output mode Vercel: default (server/edge)** — NO `output: 'export'`. El middleware de next-intl + SSG requieren runtime. `regions: ["gru1"]` (São Paulo) por cercanía a Quito. Headers de seguridad en `next.config.ts` (Vercel los respeta). CSP diferido a P3 (riesgo con Leaflet sin nonce).
 36. **`NEXT_PUBLIC_SITE_URL` única env var** — controla `metadataBase`/canonical/hreflang/sitemap. `.env.local` (gitignored) para test local; valor de producción en el dashboard de Vercel.
+37. **Frame blending obligatorio en canvas-scrub** — dibujar floor a alpha 1 + ceil a alpha=fracción. Es lo que hace que el scrub se sienta animación y no "frames pasando". Sin esto, reducir frames se nota escalonado.
+38. **Calidad de frames = q90, no q76** — q76 ablanda detalle fino visiblemente; q90 es indistinguible del original y casi no pesa más (el gran ahorro vino de abandonar el casi-sin-pérdida del original, no de bajar la q).
+39. **Frames optimizados, originales en historial git** — el árbol lleva frames q90 reducidos; los originales full-quality quedan en commit `d203864`. No reescribir historial (revert siempre posible; el clone pesa más pero el deploy de Vercel solo usa el checkout).
+40. **OriginStory mobile: canvas sticky full-screen + texto overlay** — el canvas DEBE ser sticky en mobile (igual que desktop) o el scrub ocurre fuera de pantalla. Texto duplicado en markup (overlay `md:hidden` / columna `hidden md:flex`) con una sola instancia de `<CanvasScrub>`.
+41. **Hero mobile/static: un solo mensaje** — los 3 beats narrativos son un dispositivo de scroll; sin scrub (mobile/no-JS) se muestra solo h1+subline del primer beat + CTA. Apilarlos causaba desfase.
 
 ---
 
@@ -929,6 +984,7 @@ Fase 11  ✅ Locations (Leaflet · 2 sedes · CartoDB · flyTo)
 Fase 12  ✅ i18n (next-intl v4 · en/es · SSG · [locale] segment · LanguageSwitcher)
 Fase 13  ✅ Performance audit + accesibilidad (Lighthouse A11y/BP/SEO → 100)
 Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
+Fase 15  ✅ Perf canvas frame-scrub (blending + inercia + frames 222→12 MB q90) + responsive mobile OriginStory/hero
 —           /tienda (catálogo completo) — pendiente sin número de fase asignado
 ```
 
@@ -954,6 +1010,6 @@ Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
 
 ---
 
-*Documento actualizado tras el deploy a producción (Fase 13+14). En producción en https://coffee-relief-web.vercel.app.*
-*Issue abierto: imágenes `next/image` intermitentes — ver §12.5 para la evidencia necesaria y el fix propuesto.*
-*Repo: https://github.com/Cheboy04/coffee-relief-web*
+*Documento actualizado tras la Fase 15 (perf canvas frame-scrub + responsive mobile), mergeada a `main` y desplegada. En producción en https://coffee-relief-web.vercel.app.*
+*Issue §12.5 (`next/image` "intermitente") REEVALUADO: era latencia, no error — resuelto indirectamente al reducir los frames de 222 MB → ~12 MB.*
+*Rama de trabajo `feature/iteraciones-ui` conservada para iteraciones futuras. Repo: https://github.com/Cheboy04/coffee-relief-web*
