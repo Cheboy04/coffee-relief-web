@@ -260,9 +260,18 @@
 /* ─── OriginStory — canvas frame scrub layout tokens ───────────────────────── */
 @utility h-beat-track-mob  { height: 150vh; }   /* mobile scroll track per beat */
 @utility h-beat-track      { height: 200vh; }   /* desktop scroll track per beat */
-@utility h-beat-canvas-mob { height: 56vw;  }   /* mobile canvas height */
 @utility w-canvas-col      { width: 55%; }      /* desktop canvas column */
 @utility w-text-col        { width: 45%; }      /* desktop text column */
+
+/* Mobile: cream scrim bottom→top so overlaid text stays legible over the canvas photo */
+@utility origin-text-scrim {
+  background: linear-gradient(
+    to top,
+    var(--color-surface) 0%,
+    var(--color-surface) 30%,
+    color-mix(in srgb, var(--color-surface) 0%, transparent) 100%
+  );
+}
 
 /* ─── Max-width shorthand ───────────────────────────────────────────────────── */
 @utility max-w-content { max-width: var(--max-width-content); }

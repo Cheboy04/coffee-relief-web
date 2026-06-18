@@ -20,32 +20,48 @@ const positionClasses: Record<OverlayPosition, string> = {
 }
 
 /**
- * Los 3 overlays de texto.
- * - scrub: posicionados en absoluto, opacity-0 (GSAP los anima por scroll).
- * - loop/static: apilados en columna, visibles (degradación SSR/no-JS, mobile).
+ * Overlays de texto del hero.
+ * - scrub (desktop): los 3 beats posicionados en absoluto, opacity-0 (GSAP los anima por scroll).
+ * - loop/static (mobile/no-JS): un solo mensaje de hero (h1 + subline del primer beat + CTA),
+ *   porque una narrativa de 3 actos sin scroll no tiene sentido apilada.
  */
 export default function HeroOverlay({ overlayRefs, messages, mode, shopAnchorId }: HeroOverlayProps) {
   const scrub = mode === 'scrub'
 
+  // loop/static: un único mensaje — h1/subline del primer beat + el CTA del beat que lo lleva.
+  if (!scrub) {
+    const lead = messages[0]
+    const ctaMessage = messages.find((m) => m.cta)
+    if (!lead) return null
+
+    return (
+      <div className="absolute inset-0 z-raised pointer-events-none flex items-center justify-center">
+        <div className="flex max-w-prose flex-col items-center gap-6 px-5 text-center">
+          <h1 className="font-display text-display-lg-mob md:text-display-lg text-on-primary">{lead.headline}</h1>
+          <p className="font-sans text-body-lg text-on-primary/85">{lead.subline}</p>
+          {ctaMessage?.cta && (
+            <div className="pointer-events-auto mt-2">
+              <Button variant="primary" size="lg" href={`#${shopAnchorId}`}>
+                {ctaMessage.cta.label}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // scrub (desktop): los 3 beats animados por GSAP.
   return (
-    <div className={cn('absolute inset-0 z-raised pointer-events-none', !scrub && 'flex items-center justify-center')}>
-      <div
-        className={cn(
-          scrub
-            ? 'relative mx-auto h-full w-full max-w-[1280px] px-5 md:px-16'
-            : 'flex max-w-prose flex-col items-center gap-10 px-5 text-center',
-        )}
-      >
+    <div className="absolute inset-0 z-raised pointer-events-none">
+      <div className="relative mx-auto h-full w-full max-w-content px-5 md:px-16">
         {messages.map((m, i) => (
           <div
             key={m.id}
             ref={(el) => {
               overlayRefs.current[i] = el
             }}
-            className={cn(
-              'flex max-w-prose flex-col',
-              scrub ? cn('absolute opacity-0', positionClasses[m.position]) : 'items-center opacity-100',
-            )}
+            className={cn('flex max-w-prose flex-col absolute opacity-0', positionClasses[m.position])}
           >
             {i === 0 ? (
               <h1 className="font-display text-display-lg-mob md:text-display-lg text-on-primary">{m.headline}</h1>
