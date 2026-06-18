@@ -21,6 +21,19 @@ function drawCover(
   ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale)
 }
 
+// Returns the frame at idx if loaded, else the nearest loaded frame below it, else null.
+function pickLoaded(
+  frames: HTMLImageElement[],
+  idx: number,
+): HTMLImageElement | null {
+  for (let i = idx; i >= 0; i--) {
+    const f = frames[i]
+    if (f?.complete && f.naturalWidth > 0) return f
+  }
+  return null
+}
+
+// Static draw (reduced-motion / first paint): best available frame at index, else placeholder.
 function drawBestFrame(
   ctx: CanvasRenderingContext2D,
   frames: HTMLImageElement[],
@@ -29,22 +42,48 @@ function drawBestFrame(
   ch: number,
   placeholderColor: string,
 ) {
-  const frame = frames[frameIndex]
-  if (frame?.complete && frame.naturalWidth > 0) {
-    drawCover(ctx, frame, cw, ch)
+  const f = pickLoaded(frames, frameIndex)
+  if (f) {
+    ctx.globalAlpha = 1
+    drawCover(ctx, f, cw, ch)
     return
   }
-  // fall back to the last successfully loaded frame
-  for (let i = frameIndex - 1; i >= 0; i--) {
-    const f = frames[i]
-    if (f?.complete && f.naturalWidth > 0) {
-      drawCover(ctx, f, cw, ch)
-      return
-    }
-  }
-  // no frames loaded yet — show placeholder
   ctx.fillStyle = placeholderColor
   ctx.fillRect(0, 0, cw, ch)
+}
+
+// Blended draw: `pos` is a fractional frame index (0 .. frameCount-1).
+// Draws floor frame at alpha 1, then ceil frame at alpha = fraction → cross-dissolve.
+function drawFrameBlended(
+  ctx: CanvasRenderingContext2D,
+  frames: HTMLImageElement[],
+  pos: number,
+  frameCount: number,
+  cw: number,
+  ch: number,
+  placeholderColor: string,
+) {
+  const last = frameCount - 1
+  const clamped = Math.max(0, Math.min(pos, last))
+  const lo = Math.floor(clamped)
+  const hi = Math.min(lo + 1, last)
+  const frac = clamped - lo
+
+  const base = pickLoaded(frames, lo)
+  if (!base) {
+    ctx.fillStyle = placeholderColor
+    ctx.fillRect(0, 0, cw, ch)
+    return
+  }
+  ctx.globalAlpha = 1
+  drawCover(ctx, base, cw, ch)
+
+  const next = frames[hi]
+  if (hi !== lo && frac > 0 && next?.complete && next.naturalWidth > 0) {
+    ctx.globalAlpha = frac
+    drawCover(ctx, next, cw, ch)
+    ctx.globalAlpha = 1
+  }
 }
 
 export function useCanvasScrub(
@@ -81,11 +120,20 @@ export function useCanvasScrub(
     const reducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // In reduced-motion mode show the middle frame, not frame 0 (progressRef never advances)
-    const fi = reducedMotion
-      ? Math.floor(frameCount / 2)
-      : Math.min(Math.floor(progressRef.current * frameCount), frameCount - 1)
-    drawBestFrame(ctx, framesRef.current, fi, canvas.width, canvas.height, placeholderColor)
+    if (reducedMotion) {
+      // Reduced-motion: middle frame, static (progressRef never advances)
+      drawBestFrame(ctx, framesRef.current, Math.floor(frameCount / 2), canvas.width, canvas.height, placeholderColor)
+    } else {
+      drawFrameBlended(
+        ctx,
+        framesRef.current,
+        progressRef.current * (frameCount - 1),
+        frameCount,
+        canvas.width,
+        canvas.height,
+        placeholderColor,
+      )
+    }
   }, [frames, frameCount, placeholderColor, canvasRef])
 
   // Canvas ResizeObserver — keeps internal resolution in sync with CSS size
@@ -99,10 +147,11 @@ export function useCanvasScrub(
       canvas.height = Math.round(height)
       const ctx = canvas.getContext('2d')
       if (!ctx) return
-      drawBestFrame(
+      drawFrameBlended(
         ctx,
         framesRef.current,
-        Math.min(Math.floor(progressRef.current * frameCount), frameCount - 1),
+        progressRef.current * (frameCount - 1),
+        frameCount,
         canvas.width,
         canvas.height,
         placeholderColor,
@@ -146,20 +195,17 @@ export function useCanvasScrub(
           trigger: scrollTrack,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: true,
+          scrub: 0.5,
           onUpdate: (self) => {
             progressRef.current = self.progress
             const canvas = canvasRef.current
             const context = canvas?.getContext('2d')
             if (!canvas || !context) return
-            const fi = Math.min(
-              Math.floor(self.progress * frameCount),
-              frameCount - 1,
-            )
-            drawBestFrame(
+            drawFrameBlended(
               context,
               framesRef.current,
-              fi,
+              self.progress * (frameCount - 1),
+              frameCount,
               canvas.width,
               canvas.height,
               placeholderColor,

@@ -42,19 +42,39 @@ const HeroCanvas = forwardRef<HeroCanvasHandle, HeroCanvasProps>(function HeroCa
   const revealedRef = useRef(false)
   const [posterHidden, setPosterHidden] = useState(false)
 
-  const draw = useCallback((index: number) => {
+  // `pos` es un índice fraccional (0 .. frameCount-1). Se dibuja el frame `floor`
+  // y encima el `ceil` con alpha = fracción → cross-dissolve continuo entre frames.
+  const draw = useCallback((pos: number) => {
     const canvas = canvasRef.current
-    const img = framesRef.current[index]
-    if (!canvas || !img?.complete || !img.naturalWidth) return
+    if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    currentFrameRef.current = index
-    drawCover(ctx, img, canvas)
+    const frames = framesRef.current
+    const last = frameCount - 1
+    const clamped = Math.max(0, Math.min(pos, last))
+    const lo = Math.floor(clamped)
+    const hi = Math.min(lo + 1, last)
+    const frac = clamped - lo
+
+    const loImg = frames[lo]
+    if (!loImg?.complete || !loImg.naturalWidth) return
+    currentFrameRef.current = clamped
+
+    ctx.globalAlpha = 1
+    drawCover(ctx, loImg, canvas)
+
+    const hiImg = frames[hi]
+    if (hi !== lo && frac > 0 && hiImg?.complete && hiImg.naturalWidth) {
+      ctx.globalAlpha = frac
+      drawCover(ctx, hiImg, canvas)
+      ctx.globalAlpha = 1
+    }
+
     if (!revealedRef.current) {
       revealedRef.current = true
       setPosterHidden(true)
     }
-  }, [])
+  }, [frameCount])
 
   useImperativeHandle(ref, () => ({ drawFrame: draw }), [draw])
 
