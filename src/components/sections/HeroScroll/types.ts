@@ -46,7 +46,7 @@ export interface HeroScrollProps {
   videoSrc?: string    // default '/video/hero.mp4' — usado en loop/static
   posterSrc?: string   // default '/images/hero/hero-poster.webp'
   frameDir?: string    // default '/frames' — directorio de frames WebP para scrub desktop
-  frameCount?: number  // default 161
+  frameCount?: number  // default 81
   /** id del ancla destino al que apunta el CTA y donde aterriza la transición. */
   shopAnchorId?: string // default 'shop'
   className?: string
