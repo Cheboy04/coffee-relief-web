@@ -45,12 +45,13 @@ export function useHeroScrub(params: UseHeroScrubParams): ScrubController {
             trigger: section,
             start: 'top top',
             end: 'bottom bottom',
-            scrub: 0.3,
+            scrub: 0.4,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               onProgress?.(self.progress)
               if (onFrame && frameCount != null) {
-                onFrame(Math.round(self.progress * (frameCount - 1)))
+                // Índice fraccional → HeroCanvas mezcla floor/ceil (blending).
+                onFrame(self.progress * (frameCount - 1))
               }
             },
           },
