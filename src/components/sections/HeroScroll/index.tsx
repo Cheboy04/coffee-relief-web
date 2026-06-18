@@ -28,7 +28,7 @@ export default function HeroScroll({
   videoSrc = '/video/hero.mp4',
   posterSrc = '/images/hero/hero-poster.webp',
   frameDir = '/frames',
-  frameCount = 81,
+  frameCount = 161,
   shopAnchorId = 'shop',
   className,
 }: HeroScrollProps) {

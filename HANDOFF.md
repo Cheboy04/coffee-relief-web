@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-18 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14, 15 (perf scrub)
+> Última actualización: 2026-06-18 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14, 15 (perf scrub), 15.1 (restaurar frames 161/60 a q90)
 
 ---
 
@@ -133,7 +133,7 @@ messages/
 middleware.ts           ← next-intl middleware (raíz del proyecto)
 
 public/
-  frames/               ← hero canvas scrub (81 frames WebP q90, frame_000000.webp — reducido en Fase 15)
+  frames/               ← hero canvas scrub (161 frames WebP q90, frame_000000.webp — restaurado en Fase 15.1)
   images/
     hero/
       hero-poster.webp  ← placeholder del hero (usado en HeroCanvas + HeroVideo)
@@ -143,10 +143,10 @@ public/
       tasting.webp
       brunch.webp
     origin/
-      beat-1-origen/    ← frames canvas OriginStory (30 frames/beat q90, frame_000000.webp — reducido en Fase 15)
+      beat-1-origen/    ← frames canvas OriginStory (60 frames/beat q90, frame_000000.webp — restaurado en Fase 15.1)
       beat-2-seleccion/
-      beat-3-tueste/    ← 30 frames q90 (Fase 15)
-      beat-4-comercio/  ← 30 frames q90 (Fase 15)
+      beat-3-tueste/    ← 60 frames q90 (Fase 15.1)
+      beat-4-comercio/  ← 60 frames q90 (Fase 15.1)
     products/           ← ⏳ pendiente — imágenes de ProductCard (ver §12 nomenclatura)
   video/
     hero.mp4            ← loop mobile (se mantiene)
@@ -293,12 +293,12 @@ types.ts
 - `static` — reduced-motion / saveData / no-JS: solo poster PNG
 
 **Assets:**
-- `/public/frames/frame_000000.webp` ... `frame_000080.webp` — **81 frames WebP q90** (canvas mode; reducido de 161 en Fase 15)
+- `/public/frames/frame_000000.webp` ... `frame_000160.webp` — **161 frames WebP q90** (canvas mode; restaurado al conteo completo en Fase 15.1)
 - `/public/video/hero.mp4` — video loop mobile
 - `/public/images/hero/hero-poster.webp` — poster WebP (usado en HeroCanvas + HeroVideo)
 
 **Fase 15 — cambios en HeroScroll:**
-- `frameCount` default **81** (antes 161). `HeroCanvas.drawFrame` ahora recibe **índice float** y mezcla floor/ceil (frame blending). `useHeroScrub` pasa `self.progress * (frameCount-1)` sin `Math.round`; `scrub: 0.4` (antes 0.3).
+- `frameCount` default **161** (Fase 15 lo bajó a 81; Fase 15.1 lo restauró a 161). `HeroCanvas.drawFrame` ahora recibe **índice float** y mezcla floor/ceil (frame blending). `useHeroScrub` pasa `self.progress * (frameCount-1)` sin `Math.round`; `scrub: 0.4` (antes 0.3).
 - `HeroOverlay` en modo **loop/static (mobile)** ahora muestra **un solo mensaje** (h1 + subline del primer beat + CTA), no los 3 beats apilados. Antes el apilamiento causaba texto desfasado/cortado en el transitorio static→loop. Modo scrub (desktop) mantiene los 3 beats animados. `max-w-[1280px]` arbitrario → `max-w-content`.
 
 **Navbar integration:**
@@ -338,7 +338,7 @@ tl.to(bag,    { opacity: 0, duration: 0.02 },                                  0
 
 **Ruta:** `src/components/sections/OriginStory/`
 
-Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × **30 frames WebP q90** (reducido de 60 en Fase 15).
+Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × **60 frames WebP q90** (Fase 15 los bajó a 30; Fase 15.1 restauró a 60).
 
 **Fase 15 — responsive mobile + fluidez:**
 - **Mobile responsive:** el canvas ahora es `sticky top-0 h-screen` (full-screen) con el texto en **overlay** abajo sobre `origin-text-scrim` (gradiente cream). Antes el canvas era `56vw` y NO sticky → el scrub ocurría fuera de pantalla. Se eliminó el token `h-beat-canvas-mob`. Eyebrow en mobile a `text-primary` (legibilidad sobre el scrim); desktop mantiene `text-secondary`. Una sola instancia de `<CanvasScrub>`; el texto se duplica en markup (overlay mobile `md:hidden` + columna desktop `hidden md:flex`).
@@ -766,6 +766,19 @@ Los **frames originales (calidad completa) viven en el historial git** (commit `
 - **Fase 4 (estrategia mobile OriginStory):** era para evitar ~150 MB en mobile. Tras Fase 3 son ~9 MB → innecesaria.
 - **Fase 5 (migrar frames a CDN/Blob):** el árbol pesa ~12 MB de frames → la deuda de §12.5 se resuelve por tamaño. Decisión del usuario: **conservar historial git** (infla el clone, NO el deploy de Vercel, que solo usa el checkout).
 
+### Fase 15.1 — Restaurar conteo de frames completo (a q90)
+> Tras confirmar en prod que la fluidez la dan blending + inercia + q90 (no el submuestreo), se revierte el submuestreo (Fase 2) conservando q90 (Fase 3).
+- **Motivo:** el blending es un *cross-dissolve* (mezcla de opacidad floor+ceil), no interpolación de movimiento real. En tramos de **movimiento rápido** mezclar dos frames distantes produce ligero ghosting/"doble exposición". Más frames reales → menos ghosting y mayor nitidez en el scrub. La q90 dejó el conteo de frames sin impacto de peso.
+- **Cambio:** hero 81→**161**, OriginStory 30→**60**/beat (conteo original completo). `frameCount` actualizado: `HeroScroll/index.tsx` + `types.ts` (default 161), `originStory.ts` (60 ×4).
+- **Peso:** ~12 MB → **~23 MB** (hero 6.6 MB, origin 16.6 MB). Sigue **9.5× por debajo** de los 222 MB originales. Mobile carga OriginStory pero el `IntersectionObserver` (`rootMargin: 600px`) hace lazy-load por beat — nunca baja los 240 de golpe.
+- **Pipeline aplicado** (restaurar originales + recomprimir, SIN submuestreo):
+```bash
+git checkout d203864 -- public/frames public/images/origin
+node scripts/recompress-frames.mjs public/frames 90
+# + recompress por cada public/images/origin/beat-* a q90
+```
+- **Reversible:** si en mobile no se nota diferencia frente a 30/beat, revertir solo OriginStory re-aplicando `subsample-frames.mjs <beat> 2` + `frameCount: 30`.
+
 ## 13. page.tsx — estado actual (`src/app/[locale]/page.tsx`)
 
 ```tsx
@@ -985,6 +998,7 @@ Fase 12  ✅ i18n (next-intl v4 · en/es · SSG · [locale] segment · LanguageS
 Fase 13  ✅ Performance audit + accesibilidad (Lighthouse A11y/BP/SEO → 100)
 Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
 Fase 15  ✅ Perf canvas frame-scrub (blending + inercia + frames 222→12 MB q90) + responsive mobile OriginStory/hero
+Fase 15.1✅ Restaurar conteo completo de frames a q90 (hero 81→161, origin 30→60/beat · ~12→23 MB) — menos ghosting del cross-dissolve
 —           /tienda (catálogo completo) — pendiente sin número de fase asignado
 ```
 
