@@ -19,13 +19,13 @@ export default function OriginBeat({ beat }: Props) {
   return (
     <article
       id={trackId}
-      className="relative flex flex-col h-beat-track-mob bg-surface md:h-beat-track md:flex-row md:items-start"
+      className="relative flex flex-col h-screen bg-surface md:h-beat-track md:flex-row md:items-start"
     >
-      {/* Stage — full-screen sticky canvas on mobile; sticky column on desktop */}
+      {/* Stage — full-screen play-once canvas on mobile; sticky column on desktop */}
       <div
         className={[
-          'sticky top-0 h-screen w-full overflow-hidden',
-          'md:h-screen md:w-canvas-col',
+          'relative h-screen w-full overflow-hidden',
+          'md:sticky md:top-0 md:h-screen md:w-canvas-col',
           beat.canvasLeft ? 'md:order-1' : 'md:order-2',
         ].join(' ')}
       >

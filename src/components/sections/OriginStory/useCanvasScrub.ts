@@ -1,11 +1,26 @@
 'use client'
 
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 
 interface UseCanvasScrubConfig {
   frameCount: number
   scrollTrackId: string
   placeholderColor: string
+}
+
+/** Render driver resolved on the client. SSR is irrelevant (canvas is client-only). */
+type ScrubMode = 'scrub' | 'play' | 'static'
+
+interface NavigatorConnection {
+  saveData?: boolean
+}
+
+// Every loaded, decoded frame is required before a mobile play-once run starts,
+// so the cross-dissolve never falls back to placeholder mid-animation.
+function framesReady(frames: HTMLImageElement[], frameCount: number): boolean {
+  if (frames.length < frameCount) return false
+  const last = frames[frameCount - 1]
+  return !!last?.complete && last.naturalWidth > 0
 }
 
 // object-fit: cover equivalent for canvas drawImage
@@ -97,10 +112,36 @@ export function useCanvasScrub(
   const framesRef = useRef(frames)
   const progressRef = useRef(0)
 
+  // Render driver: desktop scroll-scrub vs mobile play-once vs static.
+  const [mode, setMode] = useState<ScrubMode>('static')
+
   // Sync framesRef after render (not during — React 19 rule)
   useEffect(() => {
     framesRef.current = frames
   }, [frames])
+
+  // Resolve mode on the client; re-resolve on breakpoint / motion changes.
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px)')
+    const motionOk = window.matchMedia('(prefers-reduced-motion: no-preference)')
+
+    const resolve = () => {
+      const connection = (navigator as Navigator & { connection?: NavigatorConnection }).connection
+      if (connection?.saveData === true || !motionOk.matches) {
+        setMode('static')
+        return
+      }
+      setMode(desktop.matches ? 'scrub' : 'play')
+    }
+
+    resolve()
+    desktop.addEventListener('change', resolve)
+    motionOk.addEventListener('change', resolve)
+    return () => {
+      desktop.removeEventListener('change', resolve)
+      motionOk.removeEventListener('change', resolve)
+    }
+  }, [])
 
   // Draw placeholder on mount
   useEffect(() => {
@@ -161,25 +202,10 @@ export function useCanvasScrub(
     return () => ro.disconnect()
   }, [canvasRef, frameCount, placeholderColor])
 
-  // ScrollTrigger — registered once, reads frames via framesRef
+  // Desktop scroll-scrub — GSAP ScrollTrigger drives the frame index from scroll.
+  // Reads frames/progress via refs so it registers once per mode activation.
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // Show middle frame for reduced-motion
-      const canvas = canvasRef.current
-      const ctx = canvas?.getContext('2d')
-      if (canvas && ctx) {
-        drawBestFrame(
-          ctx,
-          framesRef.current,
-          Math.floor(frameCount / 2),
-          canvas.width,
-          canvas.height,
-          placeholderColor,
-        )
-      }
-      return
-    }
+    if (mode !== 'scrub') return
 
     let revert: (() => void) | undefined
     ;(async () => {
@@ -218,6 +244,68 @@ export function useCanvasScrub(
     })()
 
     return () => revert?.()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally empty — framesRef/progressRef stay in sync via assignment above
+  }, [mode, frameCount, scrollTrackId, placeholderColor, canvasRef])
+
+  // Mobile play-once — frames play through once (time-based) when the beat enters
+  // the viewport, then freeze on the last frame. Re-entry replays from frame 0.
+  useEffect(() => {
+    if (mode !== 'play') return
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const durationMs = (frameCount / 24) * 1000
+    let rafId: number | null = null
+    let startTime: number | null = null
+
+    const tick = (ts: number) => {
+      // Hold until frames are fully loaded, so playback never stutters mid-run.
+      if (!framesReady(framesRef.current, frameCount)) {
+        rafId = requestAnimationFrame(tick)
+        return
+      }
+      if (startTime === null) startTime = ts
+      const t = Math.min((ts - startTime) / durationMs, 1)
+      progressRef.current = t
+
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        drawFrameBlended(
+          ctx,
+          framesRef.current,
+          t * (frameCount - 1),
+          frameCount,
+          canvas.width,
+          canvas.height,
+          placeholderColor,
+        )
+      }
+
+      if (t < 1) rafId = requestAnimationFrame(tick)
+      else rafId = null // freeze on last frame
+    }
+
+    const reset = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      rafId = null
+      startTime = null
+      progressRef.current = 0
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          if (rafId === null && startTime === null) rafId = requestAnimationFrame(tick)
+        } else {
+          reset() // leaving resets so the next entry replays from the start
+        }
+      },
+      { threshold: 0.6 },
+    )
+    io.observe(canvas)
+
+    return () => {
+      io.disconnect()
+      reset()
+    }
+  }, [mode, frameCount, placeholderColor, canvasRef])
 }

@@ -1,6 +1,6 @@
 # Coffee Relief Web — Documento de Handoff
 > Para retomar el proyecto en una sesión fresca con contexto completo.
-> Última actualización: 2026-06-18 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14, 15 (perf scrub), 15.1 (restaurar frames 161/60 a q90)
+> Última actualización: 2026-06-18 · Fases completadas: 0, 1, 2, 3, 4, 5, 6, 7, 7.1, 8, 11, 12, 13, 14, 15 (perf scrub), 15.1 (restaurar frames 161/60 a q90), 15.2 (OriginStory play-once en mobile)
 
 ---
 
@@ -206,8 +206,7 @@ cr-marker-dot         12px dot espresso — marcador inactivo
 cr-marker-dot-active  16px dot + ring secondary/40 — marcador activo
 h-experience-card     520px  ← altura card desktop — ExperienceCards
 h-experience-card-mob 420px  ← altura card mobile — ExperienceCards
-h-beat-track-mob  150vh  ← scroll track por beat (mobile) — OriginStory
-h-beat-track      200vh  ← scroll track por beat (desktop) — OriginStory
+h-beat-track      200vh  ← scroll track por beat (desktop) — OriginStory (mobile usa h-screen play-once, Fase 15.2)
 origin-text-scrim        ← gradiente cream abajo→arriba (overlay texto mobile OriginStory). Fase 15
 w-canvas-col      55%    ← columna canvas (desktop) — OriginStory
 w-text-col        45%    ← columna texto (desktop) — OriginStory
@@ -341,7 +340,7 @@ tl.to(bag,    { opacity: 0, duration: 0.02 },                                  0
 Canvas frame scrub — mismo patrón del HeroScroll. 4 beats × **60 frames WebP q90** (Fase 15 los bajó a 30; Fase 15.1 restauró a 60).
 
 **Fase 15 — responsive mobile + fluidez:**
-- **Mobile responsive:** el canvas ahora es `sticky top-0 h-screen` (full-screen) con el texto en **overlay** abajo sobre `origin-text-scrim` (gradiente cream). Antes el canvas era `56vw` y NO sticky → el scrub ocurría fuera de pantalla. Se eliminó el token `h-beat-canvas-mob`. Eyebrow en mobile a `text-primary` (legibilidad sobre el scrim); desktop mantiene `text-secondary`. Una sola instancia de `<CanvasScrub>`; el texto se duplica en markup (overlay mobile `md:hidden` + columna desktop `hidden md:flex`).
+- **Mobile responsive:** el canvas ahora es `h-screen` (full-screen) con el texto en **overlay** abajo sobre `origin-text-scrim` (gradiente cream). Antes el canvas era `56vw` y NO sticky → el scrub ocurría fuera de pantalla. **(Actualizado en Fase 15.2: el mobile dejó de usar scroll-scrub/sticky → ahora play-once por tiempo; ver §12.6.)** Se eliminó el token `h-beat-canvas-mob`. Eyebrow en mobile a `text-primary` (legibilidad sobre el scrim); desktop mantiene `text-secondary`. Una sola instancia de `<CanvasScrub>`; el texto se duplica en markup (overlay mobile `md:hidden` + columna desktop `hidden md:flex`).
 - **Fluidez:** `frameCount: 30` (`originStory.ts` ×4). `useCanvasScrub` ahora hace **frame blending** (`drawFrameBlended`: floor a alpha 1 + ceil a alpha=fracción) en scroll/resize/frames-arrive; `scrub: 0.5` (antes `true`, sin inercia).
 
 **Naming assets:**
@@ -766,6 +765,14 @@ Los **frames originales (calidad completa) viven en el historial git** (commit `
 - **Fase 4 (estrategia mobile OriginStory):** era para evitar ~150 MB en mobile. Tras Fase 3 son ~9 MB → innecesaria.
 - **Fase 5 (migrar frames a CDN/Blob):** el árbol pesa ~12 MB de frames → la deuda de §12.5 se resuelve por tamaño. Decisión del usuario: **conservar historial git** (infla el clone, NO el deploy de Vercel, que solo usa el checkout).
 
+### Fase 15.2 — OriginStory "play-once" en mobile (reemplaza scroll-scrub)
+> El scroll-scrub en mobile se sentía trabado (cada frame se decodifica atado al dedo). Solución: en mobile los frames pasan solos por tiempo (estilo video) **una vez** al entrar al viewport. Desktop conserva el scroll-scrub.
+- **Driver por breakpoint en `useCanvasScrub`:** estado `mode: 'scrub' | 'play' | 'static'` resuelto con `matchMedia` (mismo patrón que `useHeroMode`). `saveData`/`reduced-motion` → `static` (frame medio); `≥768px` → `scrub` (ScrollTrigger, sin cambios); `<768px` → `play`.
+- **Driver `play` (mobile):** `IntersectionObserver` (threshold 0.6) sobre el canvas. Al entrar → `requestAnimationFrame` mapea tiempo→`pos` (0→`frameCount-1`) durante `frameCount/24*1000` ms (~2.5s) con el mismo `drawFrameBlended`. Espera a que los frames estén 100% cargados antes de arrancar (`framesReady`) para no tartamudear. Congela en el último frame. Al salir del viewport → reset (`progressRef=0`) → **repite desde 0 en la próxima entrada**.
+- **GSAP ya no se carga en mobile** para OriginStory (el scrub era su único uso).
+- **Layout mobile (`OriginBeat.tsx`):** cada beat pasó de `h-beat-track-mob` (150vh sticky) a `h-screen` normal; `sticky top-0` quedó scoped a `md:`. Token `h-beat-track-mob` eliminado de `globals.css`.
+- **Sin assets nuevos** — reutiliza los 60 frames q90/beat de la Fase 15.1.
+
 ### Fase 15.1 — Restaurar conteo de frames completo (a q90)
 > Tras confirmar en prod que la fluidez la dan blending + inercia + q90 (no el submuestreo), se revierte el submuestreo (Fase 2) conservando q90 (Fase 3).
 - **Motivo:** el blending es un *cross-dissolve* (mezcla de opacidad floor+ceil), no interpolación de movimiento real. En tramos de **movimiento rápido** mezclar dos frames distantes produce ligero ghosting/"doble exposición". Más frames reales → menos ghosting y mayor nitidez en el scrub. La q90 dejó el conteo de frames sin impacto de peso.
@@ -894,7 +901,7 @@ export default async function HomePage({ params }) {
 37. **Frame blending obligatorio en canvas-scrub** — dibujar floor a alpha 1 + ceil a alpha=fracción. Es lo que hace que el scrub se sienta animación y no "frames pasando". Sin esto, reducir frames se nota escalonado.
 38. **Calidad de frames = q90, no q76** — q76 ablanda detalle fino visiblemente; q90 es indistinguible del original y casi no pesa más (el gran ahorro vino de abandonar el casi-sin-pérdida del original, no de bajar la q).
 39. **Frames optimizados, originales en historial git** — el árbol lleva frames q90 reducidos; los originales full-quality quedan en commit `d203864`. No reescribir historial (revert siempre posible; el clone pesa más pero el deploy de Vercel solo usa el checkout).
-40. **OriginStory mobile: canvas sticky full-screen + texto overlay** — el canvas DEBE ser sticky en mobile (igual que desktop) o el scrub ocurre fuera de pantalla. Texto duplicado en markup (overlay `md:hidden` / columna `hidden md:flex`) con una sola instancia de `<CanvasScrub>`.
+40. **OriginStory mobile: play-once full-screen (Fase 15.2; reemplaza el sticky scroll-scrub de Fase 15)** — en mobile NO hay scroll-scrub: cada beat es `h-screen` y reproduce sus frames una vez por tiempo al entrar al viewport (estilo video), congelando en el último frame y repitiendo en cada re-entrada. El scroll-scrub se sentía trabado en mobile. Desktop sí conserva el sticky scroll-scrub. Texto duplicado en markup (overlay `md:hidden` / columna `hidden md:flex`) con una sola instancia de `<CanvasScrub>`. El driver se elige por `mode` en `useCanvasScrub` (`scrub`/`play`/`static`).
 41. **Hero mobile/static: un solo mensaje** — los 3 beats narrativos son un dispositivo de scroll; sin scrub (mobile/no-JS) se muestra solo h1+subline del primer beat + CTA. Apilarlos causaba desfase.
 
 ---
@@ -999,6 +1006,7 @@ Fase 13  ✅ Performance audit + accesibilidad (Lighthouse A11y/BP/SEO → 100)
 Fase 14  ✅ Deploy a Vercel (config + headers + robots/sitemap + region gru1)
 Fase 15  ✅ Perf canvas frame-scrub (blending + inercia + frames 222→12 MB q90) + responsive mobile OriginStory/hero
 Fase 15.1✅ Restaurar conteo completo de frames a q90 (hero 81→161, origin 30→60/beat · ~12→23 MB) — menos ghosting del cross-dissolve
+Fase 15.2✅ OriginStory play-once en mobile (frames pasan solos por tiempo al entrar; reemplaza scroll-scrub trabado). Desktop sin cambios
 —           /tienda (catálogo completo) — pendiente sin número de fase asignado
 ```
 

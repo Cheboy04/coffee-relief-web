@@ -258,7 +258,6 @@
 }
 
 /* ─── OriginStory — canvas frame scrub layout tokens ───────────────────────── */
-@utility h-beat-track-mob  { height: 150vh; }   /* mobile scroll track per beat */
 @utility h-beat-track      { height: 200vh; }   /* desktop scroll track per beat */
 @utility w-canvas-col      { width: 55%; }      /* desktop canvas column */
 @utility w-text-col        { width: 45%; }      /* desktop text column */
